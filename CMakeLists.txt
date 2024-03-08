@@ -33,8 +33,8 @@ set(PROJECT_SOURCES
         src/network/dataPackage.h
         src/network/package.cpp
         src/network/package.h
-        # src/network/network.cpp
-        # src/network/network.h
+        src/network/network.cpp
+        src/network/network.h
 
         src/parser/Ini.cpp
         src/parser/Ini.h
