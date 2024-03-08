@@ -16,7 +16,7 @@
 #include <QPainterPath>
 #include <QStyle>
 
-#include <sstream>
+#include <format>
 
 class MessageBox : public QMessageBox
 {
@@ -37,13 +37,13 @@ public:
         //界面设置
         this->setAttribute(Qt::WA_TranslucentBackground);
 
-        auto format = std::format(R"(
-background:{};
-border-radius:15px;
-border:{};)", backgroundColor.toStdString(), backgroundColor.toStdString());
+        auto styleString = std::format(R"(
+background: {};
+border-radius: 15px;
+color: #212121;
+border: {};)", backgroundColor.toStdString(), backgroundColor.toStdString());
 
-        this->setStyleSheet(QString::fromStdString(format));
-        this->style()->setProperty("background", backgroundColor);
+        this->setStyleSheet(QString::fromStdString(styleString));
         this->setMinimumSize(300, 100);
 
         auto list = this->buttons();
