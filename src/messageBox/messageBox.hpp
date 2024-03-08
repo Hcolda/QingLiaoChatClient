@@ -1,0 +1,166 @@
+﻿#ifndef MESSAGE_BOX_HPP
+#define MESSAGE_BOX_HPP
+
+#include <QMessageBox>
+#include <QObject>
+#include <QString>
+#include <QList>
+#include <QAbstractButton>
+#include <QGraphicsDropShadowEffect>
+#include <QGraphicsBlurEffect>
+#include <QWidget>
+#include <QPoint>
+#include <QMouseEvent>
+#include <QPaintEvent>
+#include <QPainter>
+#include <QPainterPath>
+#include <QStyle>
+
+#include <sstream>
+
+class MessageBox : public QMessageBox
+{
+    Q_OBJECT
+
+public:
+    MessageBox( QMessageBox::Icon icon,
+                const QString& title,
+                const QString& text,
+                QMessageBox::StandardButtons buttons = NoButton,
+                QWidget* parent = nullptr,
+                QString backgroundColor = "#F7F7F7",
+                QString shadowColor = "#004D40") :
+        QMessageBox(icon, title, text, buttons, parent, Qt::FramelessWindowHint),
+        _flag(false),
+        _backgroundColor(backgroundColor)
+    {
+        //界面设置
+        this->setAttribute(Qt::WA_TranslucentBackground);
+
+        auto format = std::format(R"(
+background:{};
+border-radius:15px;
+border:{};)", backgroundColor.toStdString(), backgroundColor.toStdString());
+
+        this->setStyleSheet(QString::fromStdString(format));
+        this->style()->setProperty("background", backgroundColor);
+        this->setMinimumSize(300, 100);
+
+        auto list = this->buttons();
+        for (auto& bi : list)
+        {
+            bi->setStyleSheet(R"(
+QPushButton{
+	background:#00BFA5;
+	border-radius:10px;
+	color:rgb(247,247,247);
+}
+
+QPushButton:hover{
+	background:#00796B;
+}
+
+QPushButton:pressed{
+	background:#00796B;
+})");
+            bi->setMinimumSize(50, 20);
+        }
+
+        {
+            QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect(this);
+            shadow->setOffset(1, 1);
+            //设置阴影颜色
+            shadow->setColor(QColor(shadowColor));
+            //设置阴影圆角
+            shadow->setBlurRadius(5);
+            //给嵌套QWidget设置阴影
+            this->setGraphicsEffect(shadow);
+        }
+    }
+
+    ~MessageBox() = default;
+
+protected slots:
+
+    //界面移动
+    void mousePressEvent(QMouseEvent* event)
+    {
+        //界面移动
+        if (event->button() == Qt::LeftButton)
+        {
+            _flag = true;
+            _position = std::move(event->globalPos() - this->pos());
+            event->accept();
+        }
+    }
+
+    void mouseMoveEvent(QMouseEvent* event)
+    {
+        //界面移动
+        if (_flag)
+        {
+            this->move(event->globalPos() - _position);
+            event->accept();
+        }
+    }
+
+    void mouseReleaseEvent(QMouseEvent* event)
+    {
+        //界面移动
+        _flag = false;
+    }
+
+    void paintEvent(QPaintEvent* event)
+    {
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing);  // 反锯齿;
+        painter.setBrush(QBrush(_backgroundColor));
+        painter.setPen(Qt::transparent);
+        QRect rect = this->rect();
+        rect.setWidth(rect.width() - 5);
+        rect.setHeight(rect.height() - 5);
+        painter.drawRoundedRect(rect, 10, 10);
+        QWidget::paintEvent(event);
+    }
+    
+private:
+    bool _flag;
+    QPoint _position;
+    QColor _backgroundColor;
+};
+
+class WarningBox : public MessageBox
+{
+    Q_OBJECT
+
+public:
+    WarningBox(const QString& title,
+        const QString& text,
+        QMessageBox::StandardButtons buttons = NoButton,
+        QWidget* parent = nullptr) :
+        MessageBox(QMessageBox::Icon::Warning,
+            title, text, buttons, parent, "#FFEBEE", "#D50000")
+    {
+        auto list = this->buttons();
+        for (auto& bi : list)
+        {
+            bi->setStyleSheet(R"(
+QPushButton{
+	background:#F44336;
+	border-radius:10px;
+    color:rgb(247,247,247);
+}
+
+QPushButton:hover{
+	background:#C62828;
+}
+
+QPushButton:pressed{
+	background:#C62828;
+})");
+        }
+    }
+    ~WarningBox() = default;
+};
+
+#endif // !MESSAGE_BOX_HPP

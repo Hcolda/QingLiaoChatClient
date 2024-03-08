@@ -6,7 +6,10 @@
 #include <QWidgetAction>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QMessageBox>
 #include <regex>
+
+#include "src/messageBox/messageBox.hpp"
 
 Login::Login(QWidget *parent)
     : QWidget(parent)
@@ -83,7 +86,19 @@ QPushButton:pressed{
 
         // 登录
         connect(ui->pushButton_3, &QPushButton::clicked, this, [=]() -> void {
-            
+            // 判断
+            if (!ui->lineEdit->text().size())
+            {
+                WarningBox box("警告", "账户名为空！", QMessageBox::StandardButton::Ok, this);
+                box.exec();
+            }
+            else if (!ui->lineEdit_2->text().size())
+            {
+                WarningBox box("警告", "密码为空！", QMessageBox::StandardButton::Ok, this);
+                box.exec();
+            }
+
+            return;
             });
 
         // 注册
@@ -97,7 +112,7 @@ QPushButton:pressed{
         QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect(this);
         shadow->setOffset(1, 1);
         //设置阴影颜色
-        shadow->setColor(QColor("#000000"));
+        shadow->setColor(QColor("#004D40"));
         //设置阴影圆角
         shadow->setBlurRadius(5);
         //给嵌套QWidget设置阴影

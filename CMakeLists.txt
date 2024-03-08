@@ -27,6 +27,8 @@ set(PROJECT_SOURCES
         src/login/login.h
         src/login/login.ui
 
+        src/messageBox/messageBox.hpp
+
         src/network/dataPackage.cpp
         src/network/dataPackage.h
         src/network/package.cpp
