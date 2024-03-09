@@ -110,11 +110,11 @@ QPushButton:pressed{
     // 设置阴影
     {
         QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect(this);
-        shadow->setOffset(1, 1);
+        shadow->setOffset(0, 0);
         //设置阴影颜色
         shadow->setColor(QColor("#004D40"));
         //设置阴影圆角
-        shadow->setBlurRadius(5);
+        shadow->setBlurRadius(6);
         //给嵌套QWidget设置阴影
         ui->frame->setGraphicsEffect(shadow);
     }

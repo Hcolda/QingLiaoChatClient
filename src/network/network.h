@@ -1,21 +1,11 @@
 ﻿#ifndef NETWORK_HPP
 #define NETWORK_HPP
 
-#include <asio.hpp>
-#include <thread>
-#include <chrono>
-#include <functional>
-#include <mutex>
-#include <shared_mutex>
-#include <condition_variable>
+#include <QThread>
+#include <QString>
+
 #include <string>
-#include <memory>
-
-#include <QuqiCrypto.hpp>
-
-#include "definition.hpp"
-#include "package.h"
-#include "dataPackage.h"
+#include <asio.hpp>
 
 namespace qls
 {
@@ -35,11 +25,29 @@ namespace qls
 
     inline std::string showBinaryData(const std::string& data);
 
-    class Network
+    struct NetworkImpl;
+
+    class Network : public QThread
     {
+        Q_OBJECT
+
     public:
-        Network() = default;
-        ~Network() = default;
+        Network();
+        ~Network();
+
+        void connect();
+        void disconnect();
+
+    signals:
+        void disconnected();
+        void connected();
+        void received_message(QString);
+
+    protected:
+        void run();
+
+    private:
+        std::shared_ptr<NetworkImpl> network_impl_;
     };
 }
 
