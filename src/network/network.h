@@ -38,6 +38,9 @@ namespace qls
         void connect();
         void disconnect();
 
+        void send_data(const std::string& data);
+        void send_data(const QString& data);
+
     signals:
         void disconnected();
         void connected();
@@ -45,6 +48,15 @@ namespace qls
 
     protected:
         void run();
+
+        void start_connect(asio::ip::tcp::resolver::results_type::iterator endpoint_iter);
+        void handle_connect(const std::error_code& error,
+            asio::ip::tcp::resolver::results_type::iterator endpoint_iter);
+        void async_read();
+        void handle_read(const std::error_code& error, std::size_t n);
+        void heart_beat_write();
+        void handle_heart_beat_write(const std::error_code& error);
+        void check_deadline();
 
     private:
         std::shared_ptr<NetworkImpl> network_impl_;
