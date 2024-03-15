@@ -40,7 +40,7 @@ namespace qls
 
     struct NetworkImpl;
 
-    class Network : public BaseNetwork, public QThread
+    class Network : public QThread, public BaseNetwork
     {
         Q_OBJECT
 

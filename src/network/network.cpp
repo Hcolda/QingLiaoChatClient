@@ -373,6 +373,7 @@ namespace qls
         {
             network_impl_->is_receiving = true;
             async_read();
+            heart_beat_write();
         }
     }
 

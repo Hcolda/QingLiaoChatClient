@@ -51,17 +51,17 @@ border: {};)", backgroundColor.toStdString(), backgroundColor.toStdString());
         {
             bi->setStyleSheet(R"(
 QPushButton{
-	background:#00BFA5;
-	border-radius:10px;
-	color:rgb(247,247,247);
+    background:#00BFA5;
+    border-radius:10px;
+    color:rgb(247,247,247);
 }
 
 QPushButton:hover{
-	background:#00796B;
+    background:#00796B;
 }
 
 QPushButton:pressed{
-	background:#00796B;
+    background:#00796B;
 })");
             bi->setMinimumSize(50, 20);
         }
@@ -146,17 +146,17 @@ public:
         {
             bi->setStyleSheet(R"(
 QPushButton{
-	background:#F44336;
-	border-radius:10px;
+    background:#F44336;
+    border-radius:10px;
     color:rgb(247,247,247);
 }
 
 QPushButton:hover{
-	background:#C62828;
+    background:#C62828;
 }
 
 QPushButton:pressed{
-	background:#C62828;
+    background:#C62828;
 })");
         }
     }
