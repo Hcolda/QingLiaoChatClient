@@ -80,6 +80,7 @@ namespace qls
         void heart_beat_write();
         void handle_heart_beat_write(const std::error_code& error);
         void check_deadline();
+        void handle_write(const std::error_code& error, std::size_t n);
 
     private:
         std::shared_ptr<NetworkImpl> network_impl_;

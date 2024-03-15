@@ -206,7 +206,7 @@ namespace qls
 
         // network_impl_->socket_ptr->async_send(asio::buffer(data), [](auto, auto){return;});
         asio::async_write(*(network_impl_->socket_ptr),
-            asio::buffer(data), [](auto, auto){return;});
+            asio::buffer(data), std::bind(&Network::handle_write, this, _1, _2));
     }
 
     bool Network::add_received_stdstring_callback(const std::string& name, ReceiveStdStringFunction func)
@@ -469,6 +469,22 @@ namespace qls
         }
 
         network_impl_->deadline_timer.async_wait(std::bind(&Network::check_deadline, this));
+    }
+
+    void Network::handle_write(const std::error_code& error, std::size_t n)
+    {
+        std::unique_lock<std::mutex> lock(network_impl_->mutex);
+        if (!network_impl_->is_running || !network_impl_->is_receiving)
+            return;
+
+        if (error)
+        {
+            network_impl_->is_receiving = false;
+            std::error_code ignored_error;
+            network_impl_->socket_ptr->close(ignored_error);
+            network_impl_->deadline_timer.cancel();
+            network_impl_->heartbeat_timer.cancel();
+        }
     }
 
     struct ClientNetworkImpl
