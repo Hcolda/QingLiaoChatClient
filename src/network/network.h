@@ -9,29 +9,43 @@
 
 namespace qls
 {
-    using asio::ip::tcp;
-    using asio::awaitable;
-    using asio::co_spawn;
-    using asio::detached;
-    using asio::use_awaitable;
-    namespace this_coro = asio::this_coro;
+    using ReceiveStdStringFunction = std::function<void(std::string)>;
+    using ReceiveQStringFunction = std::function<void(QString)>;
 
-    /*
-    * @brief 读取socket地址到string
-    * @param socket
-    * @return string socket的地址
-    */
     inline std::string socket2ip(const asio::ip::tcp::socket& s);
-
     inline std::string showBinaryData(const std::string& data);
+
+    class BaseNetwork
+    {
+    public:
+        BaseNetwork() = default;
+        virtual ~BaseNetwork() = default;
+
+        virtual void connect() {}
+        virtual void disconnect() {};
+
+        virtual void send_data(const std::string&) {};
+        virtual void send_data(const QString& data) { BaseNetwork::send_data(data.toStdString()); }
+
+        virtual bool add_received_stdstring_callback(const std::string&, ReceiveStdStringFunction) { return false; }
+        virtual bool add_received_qstring_callback(const std::string&, ReceiveQStringFunction) { return false; }
+        virtual bool remove_received_stdstring_callback(const std::string&) { return false; }
+        virtual bool remove_received_qstring_callback(const std::string&) { return false; }
+
+        virtual bool add_connected_callback(const std::string&, std::function<void()>) { return false; }
+        virtual bool add_disconnected_callback(const std::string&, std::function<void()>) { return false; }
+        virtual bool remove_connected_callback(const std::string&) { return false; }
+        virtual bool remove_disconnected_callback(const std::string&) { return false; }
+    };
 
     struct NetworkImpl;
 
-    class Network : public QThread
+    class Network : public BaseNetwork, public QThread
     {
         Q_OBJECT
 
     public:
+
         Network();
         ~Network();
 
@@ -39,7 +53,16 @@ namespace qls
         void disconnect();
 
         void send_data(const std::string& data);
-        void send_data(const QString& data);
+
+        virtual bool add_received_stdstring_callback(const std::string&, ReceiveStdStringFunction);
+        virtual bool add_received_qstring_callback(const std::string&, ReceiveQStringFunction);
+        virtual bool remove_received_stdstring_callback(const std::string&);
+        virtual bool remove_received_qstring_callback(const std::string&);
+
+        virtual bool add_connected_callback(const std::string&, std::function<void()>);
+        virtual bool add_disconnected_callback(const std::string&, std::function<void()>);
+        virtual bool remove_connected_callback(const std::string&);
+        virtual bool remove_disconnected_callback(const std::string&);
 
     signals:
         void disconnected();
@@ -60,6 +83,29 @@ namespace qls
 
     private:
         std::shared_ptr<NetworkImpl> network_impl_;
+    };
+
+    struct ClientNetworkImpl;
+
+    class ClientNetwork : public BaseNetwork
+    {
+    public:
+        ClientNetwork(BaseNetwork&);
+        ~ClientNetwork() = default;
+
+        virtual bool add_received_stdstring_callback(const std::string&, ReceiveStdStringFunction);
+        virtual bool add_received_qstring_callback(const std::string&, ReceiveQStringFunction);
+        virtual bool remove_received_stdstring_callback(const std::string&);
+        virtual bool remove_received_qstring_callback(const std::string&);
+
+        virtual bool add_connected_callback(const std::string&, std::function<void()>);
+        virtual bool add_disconnected_callback(const std::string&, std::function<void()>);
+        virtual bool remove_connected_callback(const std::string&);
+        virtual bool remove_disconnected_callback(const std::string&);
+
+    private:
+        std::shared_ptr<ClientNetworkImpl>  network_impl_;
+        BaseNetwork&                        baseNetwork_;
     };
 }
 
