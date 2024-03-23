@@ -5,6 +5,7 @@ namespace qls
     struct FactoryImpl
     {
         Network network;
+        BaseMainWindow mainWindow;
     };
 
     Factory::Factory() :
@@ -25,5 +26,10 @@ namespace qls
     BaseNetwork& Factory::getNetwork() const
     {
         return m_factory_impl->network;
+    }
+
+    BaseMainWindow& Factory::getMainWindow() const
+    {
+        return m_factory_impl->mainWindow;
     }
 }

@@ -42,6 +42,9 @@ set(PROJECT_SOURCES
         src/factory/factory.h
         src/factory/factory.cpp
 
+        src/mainWindow/baseMainWindow.h
+        src/mainWindow/baseMainWindow.cpp
+
         src/parser/Ini.cpp
         src/parser/Ini.h
         src/parser/Json.cpp
@@ -55,7 +58,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
-    target_include_directories(QingLiaoClient PUBLIC src/include/ src/parser/)
+    target_include_directories(QingLiaoClient PUBLIC include/ src/parser/)
     target_link_libraries(QingLiaoClient PRIVATE
         OpenSSL::SSL OpenSSL::Crypto asio::asio kcp::kcp)
 # Define target properties for Android with Qt 6 as:

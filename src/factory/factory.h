@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "src/network/network.h"
+#include "src/mainWindow/baseMainWindow.h"
 
 namespace qls
 {
@@ -15,11 +16,11 @@ namespace qls
         Factory();
 
     public:
+        static Factory& getGlobalFactory();
         ~Factory();
 
-        static Factory& getGlobalFactory();
-
         BaseNetwork& getNetwork() const;
+        BaseMainWindow& getMainWindow() const;
 
     private:
         std::shared_ptr<FactoryImpl> m_factory_impl;
