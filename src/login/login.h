@@ -6,11 +6,13 @@
 #include <QPoint>
 #include <QMouseEvent>
 
+#include "src/mainWindow/baseMainWindow.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class Login; }
 QT_END_NAMESPACE
 
-class Login : public QWidget
+class Login : public QWidget, public qls::BaseMainWindow
 {
     Q_OBJECT
 

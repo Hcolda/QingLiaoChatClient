@@ -1,6 +1,8 @@
 ﻿#include "manager.h"
 
 #include <functional>
+#include <unordered_map>
+#include <shared_mutex>
 
 #include "src/factory/factory.h"
 #include "src/mainWindow/baseMainWindow.h"
@@ -10,13 +12,16 @@ namespace qls
     struct ManagerImpl
     {
         BaseNetwork& network = Factory::getGlobalFactory().getNetwork();
-        BaseMainWindow& mainWindow = Factory::getGlobalFactory().getMainWindow();
+
+        std::unordered_map<std::string,
+            qls::BaseMainWindow*>   mainWindow_map;
+        std::shared_mutex           mainWindow_map_mutex;
     };
 
     Manager::Manager() :
         m_manager_impl(std::make_shared<ManagerImpl>())
     {
-        m_manager_impl->network.add_connected_callback("ManagerConnected", 
+        m_manager_impl->network.add_connected_callback("ManagerConnected",
             std::bind(&Manager::connected_callback, this));
         m_manager_impl->network.add_disconnected_callback("ManagerDisconnected",
             std::bind(&Manager::disconnected_callback, this));
@@ -37,18 +42,50 @@ namespace qls
         m_manager_impl->network.remove_received_stdstring_callback("ManagerReceivedMessage");
     }
 
+    bool Manager::removeMainWindow(const std::string& name)
+    {
+        std::unique_lock<std::shared_mutex> lock(m_manager_impl->mainWindow_map_mutex);
+        auto iter = m_manager_impl->mainWindow_map.find(name);
+        if (iter == m_manager_impl->mainWindow_map.cend())
+            return false;
+        m_manager_impl->mainWindow_map.erase(iter);
+        return true;
+    }
+
+    bool Manager::addMainWindow(const std::string& name, qls::BaseMainWindow* window)
+    {
+        std::unique_lock<std::shared_mutex> lock(m_manager_impl->mainWindow_map_mutex);
+        auto iter = m_manager_impl->mainWindow_map.find(name);
+        if (iter != m_manager_impl->mainWindow_map.cend())
+            return false;
+        m_manager_impl->mainWindow_map[name] = window;
+        return true;
+    }
+
     void Manager::connected_callback()
     {
-        m_manager_impl->mainWindow.connected_callback();
+        std::shared_lock<std::shared_mutex> sl(m_manager_impl->mainWindow_map_mutex);
+        for (const auto& [_, window] : m_manager_impl->mainWindow_map)
+        {
+            window->connected_callback();
+        }
     }
 
     void Manager::disconnected_callback()
     {
-        m_manager_impl->mainWindow.disconnected_callback();
+        std::shared_lock<std::shared_mutex> sl(m_manager_impl->mainWindow_map_mutex);
+        for (const auto& [_, window] : m_manager_impl->mainWindow_map)
+        {
+            window->disconnected_callback();
+        }
     }
 
     void Manager::received_message(std::string data)
     {
-        
+        std::shared_lock<std::shared_mutex> sl(m_manager_impl->mainWindow_map_mutex);
+        /*for (const auto& [_, window] : m_manager_impl->mainWindow_map)
+        {
+            window->;
+        }*/
     }
 }

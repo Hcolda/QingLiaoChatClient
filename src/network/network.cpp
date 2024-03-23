@@ -175,8 +175,6 @@ namespace qls
         {
             m_network_impl->is_receiving = false;
             std::unique_lock<std::mutex> lock(m_network_impl->mutex);
-            std::error_code ignored_error;
-            m_network_impl->socket_ptr->close(ignored_error);
             m_network_impl->endpoints = resolver.resolve(resolver_query, ec);
         }
 
@@ -323,7 +321,7 @@ namespace qls
         {
             std::unique_lock<std::mutex> lock(m_network_impl->mutex);
             m_network_impl->condition_variable.wait(lock,
-                [&]() {return !m_network_impl->is_running || !m_network_impl->is_receiving; });
+                [&]() {return !m_network_impl->is_running; });
 
             if (!m_network_impl->is_running)
                 return;

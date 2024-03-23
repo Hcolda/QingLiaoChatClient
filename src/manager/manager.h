@@ -5,6 +5,7 @@
 #include <string>
 
 #include "manager.h"
+#include "src/mainWindow/baseMainWindow.h"
 
 namespace qls
 {
@@ -18,6 +19,9 @@ namespace qls
     public:
         static Manager& getGlobalManager();
         ~Manager();
+
+        bool addMainWindow(const std::string&, qls::BaseMainWindow*);
+        bool removeMainWindow(const std::string&);
 
     protected:
         void connected_callback();

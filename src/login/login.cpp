@@ -10,6 +10,8 @@
 #include <regex>
 
 #include "src/messageBox/messageBox.hpp"
+#include "src/manager/manager.h"
+#include "src/factory/factory.h"
 
 Login::Login(QWidget *parent)
     : QWidget(parent)
@@ -119,6 +121,11 @@ QPushButton:pressed{
         ui->frame->setGraphicsEffect(shadow);
     }
 
+    qls::Manager& manager = qls::Manager::getGlobalManager();
+    qls::BaseNetwork& network = qls::Factory::getGlobalFactory().getNetwork();
+    manager.addMainWindow("Login", this);
+    network.connect();
+    
     // 毛玻璃效果
     /*QGraphicsBlurEffect* effect = new QGraphicsBlurEffect(this);
     effect->setBlurRadius(5);
