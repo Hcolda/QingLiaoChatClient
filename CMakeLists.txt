@@ -36,6 +36,12 @@ set(PROJECT_SOURCES
         src/network/network.cpp
         src/network/network.h
 
+        src/manager/manager.h
+        src/manager/manager.cpp
+
+        src/factory/factory.h
+        src/factory/factory.cpp
+
         src/parser/Ini.cpp
         src/parser/Ini.h
         src/parser/Json.cpp
