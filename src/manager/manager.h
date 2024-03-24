@@ -26,6 +26,7 @@ namespace qls
     protected:
         void connected_callback();
         void disconnected_callback();
+        void connected_error_callback(std::error_code);
         void received_message(std::string);
 
     private:

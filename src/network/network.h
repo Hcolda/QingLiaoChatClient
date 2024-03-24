@@ -32,9 +32,11 @@ namespace qls
         virtual bool remove_received_stdstring_callback(const std::string&) { return false; }
 
         virtual bool add_connected_callback(const std::string&, std::function<void()>) { return false; }
-        virtual bool add_disconnected_callback(const std::string&, std::function<void()>) { return false; }
         virtual bool remove_connected_callback(const std::string&) { return false; }
+        virtual bool add_disconnected_callback(const std::string&, std::function<void()>) { return false; }
         virtual bool remove_disconnected_callback(const std::string&) { return false; }
+        virtual bool add_connected_error_callback(const std::string&, std::function<void(std::error_code)>) { return false; }
+        virtual bool remove_connected_error_callback(const std::string&) { return false; }
     };
 
     struct NetworkImpl;
@@ -56,13 +58,16 @@ namespace qls
         virtual bool remove_received_stdstring_callback(const std::string&);
 
         virtual bool add_connected_callback(const std::string&, std::function<void()>);
-        virtual bool add_disconnected_callback(const std::string&, std::function<void()>);
         virtual bool remove_connected_callback(const std::string&);
+        virtual bool add_disconnected_callback(const std::string&, std::function<void()>);
         virtual bool remove_disconnected_callback(const std::string&);
+        virtual bool add_connected_error_callback(const std::string&, std::function<void(std::error_code)>);
+        virtual bool remove_connected_error_callback(const std::string&);
 
     protected:
         void call_connected();
         void call_disconnect();
+        void call_connected_error();
         void call_received_stdstring(std::string);
 
         void run();

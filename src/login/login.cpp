@@ -29,6 +29,10 @@ Login::Login(QWidget *parent)
     //最小化按钮
     connect(ui->pushButton_2, &QPushButton::clicked, this, &Login::showMinimized);
 
+    connect(this, &Login::connected_error_singal, this, &Login::connected_error_slot);
+    connect(this, &Login::connected_singal, this, &Login::connected_slot);
+    connect(this, &Login::disconnected_singal, this, &Login::disconnected_slot);
+
     //显示密码
     {
         QPushButton* btn = new QPushButton;
@@ -134,6 +138,8 @@ QPushButton:pressed{
 
 Login::~Login()
 {
+    qls::Manager& manager = qls::Manager::getGlobalManager();
+    manager.removeMainWindow("Login");
     delete ui;
 }
 
@@ -163,4 +169,35 @@ void Login::mouseReleaseEvent(QMouseEvent* event)
 {
     //界面移动
     _flag = false;
+}
+
+void Login::connected_error_slot(std::error_code)
+{
+    WarningBox box("警告", "无法连接服务器！", QMessageBox::StandardButton::Ok, this);
+    box.exec();
+}
+
+void Login::connected_slot()
+{
+    
+}
+
+void Login::disconnected_slot()
+{
+    
+}
+
+void Login::connected_callback()
+{
+    emit connected_singal();
+}
+
+void Login::disconnected_callback()
+{
+    emit disconnected_singal();
+}
+
+void Login::connected_error_callback(std::error_code ec)
+{
+    emit connected_error_singal(ec);
 }

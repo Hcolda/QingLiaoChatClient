@@ -27,6 +27,8 @@ namespace qls
             std::bind(&Manager::disconnected_callback, this));
         m_manager_impl->network.add_received_stdstring_callback("ManagerReceivedMessage",
             std::bind(&Manager::received_message, this, std::placeholders::_1));
+        m_manager_impl->network.add_connected_error_callback("ManagerConnectedError",
+            std::bind(&Manager::connected_error_callback, this, std::placeholders::_1));
     }
 
     Manager& Manager::getGlobalManager()
@@ -87,5 +89,14 @@ namespace qls
         {
             window->;
         }*/
+    }
+
+    void Manager::connected_error_callback(std::error_code ec)
+    {
+        std::shared_lock<std::shared_mutex> sl(m_manager_impl->mainWindow_map_mutex);
+        for (const auto& [_, window] : m_manager_impl->mainWindow_map)
+        {
+            window->connected_error_callback(ec);
+        }
     }
 }

@@ -132,10 +132,15 @@ namespace qls
         std::unordered_map<std::string,
             std::function<void()>>      disconnectedCallbackFunction_map;
         std::shared_mutex               disconnectedCallbackFunction_map_mutex;
+        std::unordered_map<std::string,
+            std::function<void(std::error_code)>>
+                                        connectedErrorCallbackFunction_map;
+        std::shared_mutex               connectedErrorCallbackFunction_map_mutex;
 
         NetworkImpl() :
             deadline_timer(io_context),
-            heartbeat_timer(io_context) {}
+            heartbeat_timer(io_context),
+            socket_ptr(std::make_shared<asio::ip::tcp::socket>(io_context)) {}
         ~NetworkImpl() = default;
     };
 
@@ -243,19 +248,6 @@ namespace qls
         return true;
     }
 
-    bool Network::add_disconnected_callback(const std::string& name, std::function<void()> func)
-    {
-        std::unique_lock<std::shared_mutex> lock(
-            m_network_impl->disconnectedCallbackFunction_map_mutex);
-
-        auto iter = m_network_impl->disconnectedCallbackFunction_map.find(name);
-        if (iter != m_network_impl->disconnectedCallbackFunction_map.end())
-            return false;
-
-        m_network_impl->disconnectedCallbackFunction_map[name] = std::move(func);
-        return true;
-    }
-
     bool Network::remove_connected_callback(const std::string& name)
     {
         std::unique_lock<std::shared_mutex> lock(
@@ -269,6 +261,19 @@ namespace qls
         return true;
     }
 
+    bool Network::add_disconnected_callback(const std::string& name, std::function<void()> func)
+    {
+        std::unique_lock<std::shared_mutex> lock(
+            m_network_impl->disconnectedCallbackFunction_map_mutex);
+
+        auto iter = m_network_impl->disconnectedCallbackFunction_map.find(name);
+        if (iter != m_network_impl->disconnectedCallbackFunction_map.end())
+            return false;
+
+        m_network_impl->disconnectedCallbackFunction_map[name] = std::move(func);
+        return true;
+    }
+
     bool Network::remove_disconnected_callback(const std::string& name)
     {
         std::unique_lock<std::shared_mutex> lock(
@@ -279,6 +284,32 @@ namespace qls
             return false;
 
         m_network_impl->disconnectedCallbackFunction_map.erase(iter);
+        return true;
+    }
+
+    bool Network::add_connected_error_callback(const std::string& name, std::function<void(std::error_code)> func)
+    {
+        std::unique_lock<std::shared_mutex> lock(
+            m_network_impl->connectedErrorCallbackFunction_map_mutex);
+
+        auto iter = m_network_impl->connectedErrorCallbackFunction_map.find(name);
+        if (iter != m_network_impl->connectedErrorCallbackFunction_map.end())
+            return false;
+
+        m_network_impl->connectedErrorCallbackFunction_map[name] = std::move(func);
+        return true;
+    }
+
+    bool Network::remove_connected_error_callback(const std::string& name)
+    {
+        std::unique_lock<std::shared_mutex> lock(
+            m_network_impl->connectedErrorCallbackFunction_map_mutex);
+
+        auto iter = m_network_impl->connectedErrorCallbackFunction_map.find(name);
+        if (iter == m_network_impl->connectedErrorCallbackFunction_map.end())
+            return false;
+
+        m_network_impl->connectedErrorCallbackFunction_map.erase(iter);
         return true;
     }
 
@@ -304,6 +335,18 @@ namespace qls
         }
     }
 
+    void Network::call_connected_error()
+    {
+        std::shared_lock<std::shared_mutex> lock(
+            m_network_impl->connectedErrorCallbackFunction_map_mutex);
+
+        auto error_code = std::make_error_code(std::errc::not_connected);
+        for (const auto& [_, func] : m_network_impl->connectedErrorCallbackFunction_map)
+        {
+            func(error_code);
+        }
+    }
+
     void Network::call_received_stdstring(std::string data)
     {
         std::shared_lock<std::shared_mutex> lock(
@@ -321,7 +364,7 @@ namespace qls
         {
             std::unique_lock<std::mutex> lock(m_network_impl->mutex);
             m_network_impl->condition_variable.wait(lock,
-                [&]() {return !m_network_impl->is_running; });
+                [&]() { return !m_network_impl->is_running || !m_network_impl->endpoints.empty(); });
 
             if (!m_network_impl->is_running)
                 return;
@@ -353,6 +396,8 @@ namespace qls
         else
         {
             m_network_impl->is_receiving = false;
+            m_network_impl->endpoints = {};
+            call_connected_error();
         }
     }
 
@@ -364,16 +409,19 @@ namespace qls
 
         if (!m_network_impl->socket_ptr->is_open())
         {
+            lock.unlock();
             start_connect(++endpoint_iter);
         }
         else if (error)
         {
             m_network_impl->socket_ptr->close();
+            lock.unlock();
             start_connect(++endpoint_iter);
         }
         else
         {
             m_network_impl->is_receiving = true;
+            lock.unlock();
             async_read();
             heart_beat_write();
             call_connected();
@@ -409,6 +457,7 @@ namespace qls
                     m_network_impl->package.read()));
             }
 
+            lock.unlock();
             async_read();
         }
         else
@@ -470,6 +519,7 @@ namespace qls
             m_network_impl->deadline_timer.expires_at(asio::steady_timer::time_point::max());
             call_disconnect();
 
+            lock.unlock();
             start_connect(m_network_impl->endpoints.begin());
         }
 

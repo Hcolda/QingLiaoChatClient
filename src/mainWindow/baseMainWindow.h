@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <string>
+#include <system_error>
 
 namespace qls
 {
@@ -38,6 +39,7 @@ namespace qls
 
         virtual void connected_callback() {}
         virtual void disconnected_callback() {}
+        virtual void connected_error_callback(std::error_code) {}
     };
 }
 
