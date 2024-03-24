@@ -19,81 +19,6 @@
 #include "package.h"
 #include "dataPackage.h"
 
-std::string socket2ip(const asio::ip::tcp::socket& s)
-{
-    auto ep = s.remote_endpoint();
-    return std::format("{}:{}", ep.address().to_string(), int(ep.port()));
-}
-
-std::string showBinaryData(const std::string& data)
-{
-    auto isShowableCharactor = [](unsigned char ch) -> bool {
-        return 32 <= ch && ch <= 126;
-        };
-
-    std::string result;
-
-    for (const auto& i : data)
-    {
-        if (isShowableCharactor(static_cast<unsigned char>(i)))
-        {
-            result += i;
-        }
-        else
-        {
-            std::string hex;
-            int locch = static_cast<unsigned char>(i);
-            while (locch)
-            {
-                if (locch % 16 < 10)
-                {
-                    hex += ('0' + (locch % 16));
-                    locch /= 16;
-                    continue;
-                }
-                switch (locch % 16)
-                {
-                case 10:
-                    hex += 'a';
-                    break;
-                case 11:
-                    hex += 'b';
-                    break;
-                case 12:
-                    hex += 'c';
-                    break;
-                case 13:
-                    hex += 'd';
-                    break;
-                case 14:
-                    hex += 'e';
-                    break;
-                case 15:
-                    hex += 'f';
-                    break;
-                }
-                locch /= 16;
-            }
-
-            //result += "\\x" + (hex.size() == 1 ? "0" + hex : hex);
-            if (hex.empty())
-            {
-                result += "\\x00";
-            }
-            else if (hex.size() == 1)
-            {
-                result += "\\x0" + hex;
-            }
-            else
-            {
-                result += "\\x" + hex;
-            }
-        }
-    }
-
-    return result;
-}
-
 namespace qls
 {
     using asio::ip::tcp;
@@ -104,6 +29,83 @@ namespace qls
     namespace this_coro = asio::this_coro;
     using namespace std::placeholders;
     using asio::ip::tcp;
+
+    std::string socket2ip(const asio::ip::tcp::socket& s)
+    {
+        auto ep = s.remote_endpoint();
+        return std::format("{}:{}", ep.address().to_string(), int(ep.port()));
+    }
+
+    std::string showBinaryData(const std::string& data)
+    {
+        auto isShowableCharactor = [](unsigned char ch) -> bool {
+            return 32 <= ch && ch <= 126;
+            };
+
+        std::string result;
+
+        for (const auto& i : data)
+        {
+            if (isShowableCharactor(static_cast<unsigned char>(i)))
+            {
+                result += i;
+            }
+            else
+            {
+                std::string hex;
+                int locch = static_cast<unsigned char>(i);
+                while (locch)
+                {
+                    if (locch % 16 < 10)
+                    {
+                        hex += ('0' + (locch % 16));
+                        locch /= 16;
+                        continue;
+                    }
+                    switch (locch % 16)
+                    {
+                    case 10:
+                        hex += 'a';
+                        break;
+                    case 11:
+                        hex += 'b';
+                        break;
+                    case 12:
+                        hex += 'c';
+                        break;
+                    case 13:
+                        hex += 'd';
+                        break;
+                    case 14:
+                        hex += 'e';
+                        break;
+                    case 15:
+                        hex += 'f';
+                        break;
+                    }
+                    locch /= 16;
+                }
+
+                //result += "\\x" + (hex.size() == 1 ? "0" + hex : hex);
+                if (hex.empty())
+                {
+                    result += "\\x00";
+                }
+                else if (hex.size() == 1)
+                {
+                    result += "\\x0" + hex;
+                }
+                else
+                {
+                    result += "\\x" + hex;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    
 
     struct NetworkImpl
     {
@@ -204,9 +206,11 @@ namespace qls
         if (!m_network_impl->is_receiving)
             throw std::runtime_error("socket is not able to use");
 
+        auto wrapper = std::make_shared<StringWrapper>(data);
+
         // m_network_impl->socket_ptr->async_send(asio::buffer(data), [](auto, auto){return;});
         asio::async_write(*(m_network_impl->socket_ptr),
-            asio::buffer(data), std::bind(&Network::handle_write, this, _1, _2));
+            asio::buffer(wrapper->data), std::bind(&Network::handle_write, this, _1, _2, wrapper));
     }
 
     bool Network::add_received_stdstring_callback(const std::string& name, ReceiveStdStringFunction func)
@@ -422,6 +426,7 @@ namespace qls
         {
             m_network_impl->is_receiving = true;
             lock.unlock();
+            send_data(DataPackage::makePackage("test")->packageToString());
             async_read();
             heart_beat_write();
             call_connected();
@@ -479,11 +484,13 @@ namespace qls
         auto pack = DataPackage::makePackage("heartbeat");
         pack->type = 4;
 
-        asio::async_write(*(m_network_impl->socket_ptr), asio::buffer(pack->packageToString(), 1),
-            std::bind(&Network::handle_heart_beat_write, this, _1));
+        auto wrapper = std::make_shared<StringWrapper>(pack->packageToString());
+
+        asio::async_write(*(m_network_impl->socket_ptr), asio::buffer(wrapper->data),
+            std::bind(&Network::handle_heart_beat_write, this, _1, wrapper));
     }
 
-    void Network::handle_heart_beat_write(const std::error_code& error)
+    void Network::handle_heart_beat_write(const std::error_code& error, std::shared_ptr<StringWrapper>)
     {
         std::unique_lock<std::mutex> lock(m_network_impl->mutex);
         if (!m_network_impl->is_running || !m_network_impl->is_receiving)
@@ -526,7 +533,9 @@ namespace qls
         m_network_impl->deadline_timer.async_wait(std::bind(&Network::check_deadline, this));
     }
 
-    void Network::handle_write(const std::error_code& error, std::size_t n)
+    void Network::handle_write(const std::error_code& error,
+        std::size_t n,
+        std::shared_ptr<StringWrapper>)
     {
         std::unique_lock<std::mutex> lock(m_network_impl->mutex);
         if (!m_network_impl->is_running || !m_network_impl->is_receiving)

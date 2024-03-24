@@ -41,6 +41,11 @@ namespace qls
 
     struct NetworkImpl;
 
+    struct StringWrapper
+    {
+        std::string data;
+    };
+
     class Network : public QThread, public BaseNetwork
     {
         Q_OBJECT
@@ -78,9 +83,9 @@ namespace qls
         void async_read();
         void handle_read(const std::error_code& error, std::size_t n);
         void heart_beat_write();
-        void handle_heart_beat_write(const std::error_code& error);
+        void handle_heart_beat_write(const std::error_code& error, std::shared_ptr<StringWrapper>);
         void check_deadline();
-        void handle_write(const std::error_code& error, std::size_t n);
+        void handle_write(const std::error_code& error, std::size_t n, std::shared_ptr<StringWrapper>);
 
     private:
         std::shared_ptr<NetworkImpl> m_network_impl;

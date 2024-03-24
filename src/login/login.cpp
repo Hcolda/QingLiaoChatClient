@@ -184,7 +184,7 @@ void Login::connected_slot()
 
 void Login::disconnected_slot()
 {
-    
+
 }
 
 void Login::connected_callback()
