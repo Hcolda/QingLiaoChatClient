@@ -21,7 +21,9 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    Login w;
+    /*Login w;
+    w.show();*/
+    auto& w = StackWidget::getGlobalStackWidget();
     w.show();
     return a.exec();
 }

@@ -10,11 +10,6 @@ StackWidget::StackWidget(QWidget* parent) :
     QStackedWidget(parent),
     flag_(false)
 {
-    QScreen* screen = QGuiApplication::primaryScreen();
-    QRect rect = screen->geometry();
-
-    this->resize(rect.width(), rect.height());
-
     this->setWindowFlags(Qt::FramelessWindowHint);
     this->setAttribute(Qt::WA_TranslucentBackground);
 
