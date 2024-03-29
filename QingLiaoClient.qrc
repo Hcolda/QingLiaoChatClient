@@ -5,4 +5,7 @@
     <file>img/password.png</file>
     <file>img/user.png</file>
   </qresource>
+  <qresource prefix="Start">
+    <file>img/Logo.png</file>
+  </qresource>
 </RCC>

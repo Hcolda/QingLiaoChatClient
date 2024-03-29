@@ -5,6 +5,8 @@
 
 #include "src/network/network.h"
 #include "src/mainWindow/baseMainWindow.h"
+#include "src/login/login.h"
+#include "src/start/start.h"
 
 namespace qls
 {
@@ -21,6 +23,9 @@ namespace qls
 
         BaseNetwork& getNetwork() const;
         BaseMainWindow& getMainWindow() const;
+
+        std::shared_ptr<Login> createNewLoginWidget();
+        std::shared_ptr<Start> createNewStartWidget();
 
     private:
         std::shared_ptr<FactoryImpl> m_factory_impl;

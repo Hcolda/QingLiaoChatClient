@@ -27,6 +27,10 @@ set(PROJECT_SOURCES
         src/login/login.h
         src/login/login.ui
 
+        src/start/start.h
+        src/start/start.cpp
+        src/start/start.ui
+
         src/messageBox/messageBox.hpp
 
         src/network/dataPackage.cpp
@@ -44,6 +48,9 @@ set(PROJECT_SOURCES
 
         src/mainWindow/baseMainWindow.h
         src/mainWindow/baseMainWindow.cpp
+        src/mainWindow/mainWindow.h
+        src/mainWindow/mainWindow.cpp
+        src/mainWindow/mainWindow.ui
 
         src/parser/Ini.cpp
         src/parser/Ini.h
@@ -54,7 +61,7 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(QingLiaoClient
+    qt_add_executable(QingLiaoClient WIN32
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
@@ -75,7 +82,7 @@ else()
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
-        add_executable(QingLiaoClient
+        add_executable(QingLiaoClient WIN32
             ${PROJECT_SOURCES}
         )
         target_include_directories(QingLiaoClient PUBLIC include/ parser/)

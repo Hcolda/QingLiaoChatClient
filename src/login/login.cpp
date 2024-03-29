@@ -16,7 +16,7 @@
 Login::Login(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Login)
-    , _flag(false)
+    , flag_(false)
 {
     ui->setupUi(this);
 
@@ -149,7 +149,7 @@ void Login::mousePressEvent(QMouseEvent* event)
     int num = (event->globalPos() - this->pos()).y();
     if (event->button() == Qt::LeftButton && num < 50 && num > 10)
     {
-        _flag = true;
+        flag_ = true;
         _position = std::move(event->globalPos() - this->pos());
         event->accept();
     }
@@ -158,7 +158,7 @@ void Login::mousePressEvent(QMouseEvent* event)
 void Login::mouseMoveEvent(QMouseEvent* event)
 {
     //界面移动
-    if (_flag)
+    if (flag_)
     {
         this->move(event->globalPos() - _position);
         event->accept();
@@ -168,7 +168,7 @@ void Login::mouseMoveEvent(QMouseEvent* event)
 void Login::mouseReleaseEvent(QMouseEvent* event)
 {
     //界面移动
-    _flag = false;
+    flag_ = false;
 }
 
 void Login::connected_error_slot(std::error_code)

@@ -31,7 +31,7 @@ public:
                 QString backgroundColor = "#F7F7F7",
                 QString shadowColor = "#004D40") :
         QMessageBox(icon, title, text, buttons, parent, Qt::FramelessWindowHint),
-        _flag(false),
+        flag_(false),
         _backgroundColor(backgroundColor)
     {
         //界面设置
@@ -88,7 +88,7 @@ protected slots:
         //界面移动
         if (event->button() == Qt::LeftButton)
         {
-            _flag = true;
+            flag_ = true;
             _position = std::move(event->globalPos() - this->pos());
             event->accept();
         }
@@ -97,7 +97,7 @@ protected slots:
     void mouseMoveEvent(QMouseEvent* event)
     {
         //界面移动
-        if (_flag)
+        if (flag_)
         {
             this->move(event->globalPos() - _position);
             event->accept();
@@ -107,7 +107,7 @@ protected slots:
     void mouseReleaseEvent(QMouseEvent* event)
     {
         //界面移动
-        _flag = false;
+        flag_ = false;
     }
 
     void paintEvent(QPaintEvent* event)
@@ -124,7 +124,7 @@ protected slots:
     }
     
 private:
-    bool _flag;
+    bool flag_;
     QPoint _position;
     QColor _backgroundColor;
 };
