@@ -4,8 +4,9 @@ namespace qls
 {
     struct FactoryImpl
     {
-        Network network;
-        BaseMainWindow mainWindow;
+        Network         network;
+        BaseMainWindow  mainWindow;
+        Runner          runner;
     };
 
     Factory::Factory() :
@@ -33,13 +34,18 @@ namespace qls
         return m_factory_impl->mainWindow;
     }
 
-    std::shared_ptr<Login> Factory::createNewLoginWidget()
+    Runner& Factory::getRunner() const
     {
-        return std::make_shared<Login>();
+        return m_factory_impl->runner;
     }
 
-    std::shared_ptr<Start> Factory::createNewStartWidget()
+    Login* Factory::createNewLoginWidget(QWidget* parent)
     {
-        return std::make_shared<Start>();
+        return new Login(parent);
+    }
+
+    Start* Factory::createNewStartWidget(QWidget* parent)
+    {
+        return new Start(parent);
     }
 }

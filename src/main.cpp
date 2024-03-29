@@ -3,6 +3,10 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include <QStackedWidget>
+
+#include "src/factory/factory.h"
+#include "src/stackWidget/stackWidget.h"
 
 int main(int argc, char *argv[])
 {

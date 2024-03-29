@@ -42,7 +42,7 @@ void MainWindow::mousePressEvent(QMouseEvent* event)
 {
     //界面移动
     int num = (event->globalPos() - this->pos()).y();
-    if (event->button() == Qt::LeftButton)
+    if (event->button() == Qt::LeftButton && num < 50 && num > 10)
     {
         flag_ = true;
         _position = std::move(event->globalPos() - this->pos());

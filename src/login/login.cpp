@@ -125,10 +125,10 @@ QPushButton:pressed{
         ui->frame->setGraphicsEffect(shadow);
     }
 
-    qls::Manager& manager = qls::Manager::getGlobalManager();
+    /*qls::Manager& manager = qls::Manager::getGlobalManager();
     qls::BaseNetwork& network = qls::Factory::getGlobalFactory().getNetwork();
     manager.addMainWindow("Login", this);
-    network.connect();
+    network.connect();*/
     
     // 毛玻璃效果
     /*QGraphicsBlurEffect* effect = new QGraphicsBlurEffect(this);

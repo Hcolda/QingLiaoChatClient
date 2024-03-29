@@ -31,6 +31,9 @@ set(PROJECT_SOURCES
         src/start/start.cpp
         src/start/start.ui
 
+        src/stackWidget/stackWidget.h
+        src/stackWidget/stackWidget.cpp
+
         src/messageBox/messageBox.hpp
 
         src/network/dataPackage.cpp
