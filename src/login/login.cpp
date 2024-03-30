@@ -13,10 +13,10 @@
 #include "src/manager/manager.h"
 #include "src/factory/factory.h"
 
-Login::Login(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::Login)
-    , flag_(false)
+Login::Login(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::Login),
+    flag_(false)
 {
     ui->setupUi(this);
 
@@ -25,13 +25,13 @@ Login::Login(QWidget *parent)
     this->setAttribute(Qt::WA_TranslucentBackground);
 
     //关闭按钮
-    connect(ui->pushButton, &QPushButton::clicked, this, &Login::close);
+    QObject::connect(ui->pushButton, &QPushButton::clicked, this, &Login::close);
     //最小化按钮
-    connect(ui->pushButton_2, &QPushButton::clicked, this, &Login::showMinimized);
+    QObject::connect(ui->pushButton_2, &QPushButton::clicked, this, &Login::showMinimized);
 
-    connect(this, &Login::connected_error_singal, this, &Login::connected_error_slot);
-    connect(this, &Login::connected_singal, this, &Login::connected_slot);
-    connect(this, &Login::disconnected_singal, this, &Login::disconnected_slot);
+    QObject::connect(this, &Login::connected_error_singal, this, &Login::connected_error_slot);
+    QObject::connect(this, &Login::connected_singal, this, &Login::connected_slot);
+    QObject::connect(this, &Login::disconnected_singal, this, &Login::disconnected_slot);
 
     //显示密码
     {
@@ -60,7 +60,7 @@ QPushButton:pressed{
         ui->lineEdit_2->addAction(widgetAction, QLineEdit::TrailingPosition);
         btn->setVisible(false);
 
-        connect(ui->lineEdit_2, &QLineEdit::textChanged, [=]() {
+        QObject::connect(ui->lineEdit_2, &QLineEdit::textChanged, [=]() {
             if (ui->lineEdit_2->text().size())
             {
                 btn->setVisible(true);
@@ -72,7 +72,7 @@ QPushButton:pressed{
                 btn->setVisible(false);
             }
             });
-        connect(btn, &QPushButton::clicked, [=]() {
+        QObject::connect(btn, &QPushButton::clicked, [=]() {
             static bool openShowPassword = false;
 
             if (!openShowPassword)
@@ -91,7 +91,7 @@ QPushButton:pressed{
             });
 
         // 登录
-        connect(ui->pushButton_3, &QPushButton::clicked, this, [=]() -> void {
+        QObject::connect(ui->pushButton_3, &QPushButton::clicked, this, [=]() -> void {
             // 判断
             if (!ui->lineEdit->text().size())
             {
@@ -108,7 +108,7 @@ QPushButton:pressed{
             });
 
         // 注册
-        connect(ui->pushButton_4, &QPushButton::clicked, this, [=]() -> void {
+        QObject::connect(ui->pushButton_4, &QPushButton::clicked, this, [=]() -> void {
             return;
             });
     }
@@ -128,7 +128,7 @@ QPushButton:pressed{
     qls::Manager& manager = qls::Manager::getGlobalManager();
     qls::BaseNetwork& network = qls::Factory::getGlobalFactory().getNetwork();
     manager.addMainWindow("Login", this);
-    network.connect();
+    // network.connect();
     
     // 毛玻璃效果
     /*QGraphicsBlurEffect* effect = new QGraphicsBlurEffect(this);

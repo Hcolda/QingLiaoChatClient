@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Login</class>
- <widget class="QWidget" name="Login">
+ <widget class="QDialog" name="Login">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>447</width>
+    <width>431</width>
     <height>282</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Login</string>
+   <string>Dialog</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background:rgb(247,247,247);

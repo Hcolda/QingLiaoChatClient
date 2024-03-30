@@ -27,6 +27,8 @@ set(PROJECT_SOURCES
         src/login/login.h
         src/login/login.ui
 
+        src/start/startlabel.h
+        src/start/startlabel.cpp
         src/start/start.h
         src/start/start.cpp
         src/start/start.ui

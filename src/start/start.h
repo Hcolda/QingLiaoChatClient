@@ -1,8 +1,7 @@
 ﻿#ifndef START_H
 #define START_H
 
-#include <QWidget>
-#include <QtWidgets/QWidget>
+#include <QDialog>
 #include <QPoint>
 #include <QMouseEvent>
 
@@ -12,7 +11,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class Start; }
 QT_END_NAMESPACE
 
-class Start: public QWidget, public qls::BaseMainWindow
+class Start: public QDialog, public qls::BaseMainWindow
 {
     Q_OBJECT
 

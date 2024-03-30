@@ -1,4 +1,6 @@
-﻿#include "login/login.h"
+﻿#include "src/login/login.h"
+#include "src/start/start.h"
+#include "src/mainWindow/mainWindow.h"
 
 #include <QApplication>
 #include <QLocale>
@@ -17,7 +19,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    Login w;
-    w.show();
+    MainWindow main_window;
+    main_window.show();
     return a.exec();
 }

@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Start</class>
- <widget class="QWidget" name="Start">
+ <widget class="QDialog" name="Start">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>172</width>
-    <height>221</height>
+    <width>178</width>
+    <height>220</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Dialog</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background: #FEFEFE;
-color: #1d1d1d;
-boder-radis: 5px;</string>
+   <string notr="true">background:rgb(247,247,247);
+border-radius:15px;
+border:rgb(247,247,247);</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
     <widget class="QWidget" name="widget" native="true">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -52,12 +52,22 @@ boder-radis: 5px;</string>
           </spacer>
          </item>
          <item row="0" column="1">
-          <widget class="QLabel" name="label">
+          <widget class="StartLabel" name="label">
            <property name="maximumSize">
             <size>
              <width>100</width>
              <height>100</height>
             </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-radius: 5px;
+border: rgb(247,247,247);</string>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Plain</enum>
            </property>
            <property name="text">
             <string/>
@@ -139,6 +149,13 @@ boder-radis: 5px;</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>StartLabel</class>
+   <extends>QLabel</extends>
+   <header>startlabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../QingLiaoClient.qrc"/>
  </resources>

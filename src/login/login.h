@@ -1,8 +1,7 @@
 ﻿#ifndef LOGIN_H
 #define LOGIN_H
 
-#include <QWidget>
-#include <QtWidgets/QWidget>
+#include <QDialog>
 #include <QPoint>
 #include <QMouseEvent>
 
@@ -14,7 +13,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class Login; }
 QT_END_NAMESPACE
 
-class Login : public QWidget, public qls::BaseMainWindow
+class Login : public QDialog, public qls::BaseMainWindow
 {
     Q_OBJECT
 

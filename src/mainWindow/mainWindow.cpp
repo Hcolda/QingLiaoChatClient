@@ -20,6 +20,11 @@ MainWindow::MainWindow(QWidget* parent):
     this->setWindowFlags(Qt::FramelessWindowHint);
     this->setAttribute(Qt::WA_TranslucentBackground);
 
+    //关闭按钮
+    QObject::connect(ui->closeButton, &QPushButton::clicked, this, &MainWindow::close);
+    //最小化按钮
+    QObject::connect(ui->minimizeButton, &QPushButton::clicked, this, &MainWindow::showMinimized);
+
     // 设置阴影
     {
         QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect(this);

@@ -10,7 +10,7 @@
 #include <regex>
 
 Start::Start(QWidget* parent):
-    QWidget(parent),
+    QDialog(parent),
     ui(new Ui::Start),
     flag_(false)
 {
