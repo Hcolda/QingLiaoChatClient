@@ -5,6 +5,14 @@
     <file>img/password.png</file>
     <file>img/user.png</file>
   </qresource>
+  <qresource prefix="MainWindow">
+    <file>img/1.png</file>
+    <file>img/2.png</file>
+    <file>img/friend.png</file>
+    <file>img/Logo.png</file>
+    <file>img/setting.png</file>
+    <file>img/user.png</file>
+  </qresource>
   <qresource prefix="Start">
     <file>img/Logo.png</file>
   </qresource>

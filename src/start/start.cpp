@@ -9,6 +9,10 @@
 #include <QMessageBox>
 #include <regex>
 
+#include "src/manager/manager.h"
+#include "src/factory/factory.h"
+#include "src/network/network.h"
+
 Start::Start(QWidget* parent):
     QDialog(parent),
     ui(new Ui::Start),
@@ -19,6 +23,9 @@ Start::Start(QWidget* parent):
     //界面设置
     this->setWindowFlags(Qt::FramelessWindowHint);
     this->setAttribute(Qt::WA_TranslucentBackground);
+
+    QObject::connect(this, &Start::accepted_signal, this, &Start::accepted_slot);
+    QObject::connect(this, &Start::rejected_signal, this, &Start::rejected_slot);
 
     // 设置阴影
     {
@@ -31,11 +38,33 @@ Start::Start(QWidget* parent):
         //给嵌套QWidget设置阴影
         ui->widget->setGraphicsEffect(shadow);
     }
+
+    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
+    qingliao::BaseNetwork& network = qingliao::Factory::getGlobalFactory().getNetwork();
+    manager.addMainWindow("Start", this);
+    network.connect();
 }
 
 Start::~Start()
 {
+    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
+    manager.removeMainWindow("Start");
     delete ui;
+}
+
+void Start::connected_callback()
+{
+    emit accepted_signal();
+}
+
+void Start::disconnected_callback()
+{
+    emit rejected_signal();
+}
+
+void Start::connected_error_callback(std::error_code)
+{
+    emit rejected_signal();
 }
 
 void Start::mousePressEvent(QMouseEvent* event)
@@ -64,4 +93,15 @@ void Start::mouseReleaseEvent(QMouseEvent* event)
 {
     //界面移动
     flag_ = false;
+}
+
+void Start::accepted_slot()
+{
+    accept();
+}
+
+void Start::rejected_slot()
+{
+    ui->status->setText("Could not connect to server");
+    ui->status->setStyleSheet("color: red;");
 }

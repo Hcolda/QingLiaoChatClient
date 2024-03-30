@@ -20,6 +20,6 @@ int main(int argc, char *argv[])
         }
     }
     MainWindow main_window;
-    main_window.show();
+    main_window.run();
     return a.exec();
 }

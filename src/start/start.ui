@@ -122,9 +122,9 @@ border: rgb(247,247,247);</string>
        </spacer>
       </item>
       <item>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="status">
         <property name="text">
-         <string>Loding...</string>
+         <string>Loading...</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

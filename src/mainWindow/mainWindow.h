@@ -24,6 +24,8 @@ public:
     MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
+    void run();
+
     bool addPrivateRoom(long long user_id);
     bool romovePrivateRoom(long long user_id);
     bool addGroupRoom(long long roon_id);

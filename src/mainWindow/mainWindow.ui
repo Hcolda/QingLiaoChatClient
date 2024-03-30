@@ -70,7 +70,7 @@ border:rgb(247,247,247);
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap resource="../../QingLiaoClient.qrc">:/Start/img/Logo.png</pixmap>
+             <pixmap resource="../../QingLiaoClient.qrc">:/MainWindow/img/Logo.png</pixmap>
             </property>
             <property name="scaledContents">
              <bool>true</bool>
@@ -93,21 +93,33 @@ border:rgb(247,247,247);
             </property>
             <property name="styleSheet">
              <string notr="true">QPushButton{
-	background:#3949ab;
-	border-radius:15px;
-	color:rgb(247,247,247);
+	background:rgb(247,247,247);
+	border-radius:8px;
 }
 
 QPushButton:hover{
-	background:#283593;
+	background:#F0F0F0;
 }
 
 QPushButton:pressed{
-	background:#283593;
+	background:#F0F0F0;
 }</string>
             </property>
             <property name="text">
-             <string>Chat</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="../../QingLiaoClient.qrc">
+              <normaloff>:/MainWindow/img/2.png</normaloff>:/MainWindow/img/2.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="autoRepeat">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -127,21 +139,30 @@ QPushButton:pressed{
             </property>
             <property name="styleSheet">
              <string notr="true">QPushButton{
-	background:#3949ab;
-	border-radius:15px;
-	color:rgb(247,247,247);
+	background:rgb(247,247,247);
+	border-radius:8px;
 }
 
 QPushButton:hover{
-	background:#283593;
+	background:#F0F0F0;
 }
 
 QPushButton:pressed{
-	background:#283593;
+	background:#F0F0F0;
 }</string>
             </property>
             <property name="text">
-             <string>Friends</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="../../QingLiaoClient.qrc">
+              <normaloff>:/MainWindow/img/friend.png</normaloff>:/MainWindow/img/friend.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -174,21 +195,30 @@ QPushButton:pressed{
             </property>
             <property name="styleSheet">
              <string notr="true">QPushButton{
-	background:#3949ab;
-	border-radius:15px;
-	color:rgb(247,247,247);
+	background:rgb(247,247,247);
+	border-radius:8px;
 }
 
 QPushButton:hover{
-	background:#283593;
+	background:#F0F0F0;
 }
 
 QPushButton:pressed{
-	background:#283593;
+	background:#F0F0F0;
 }</string>
             </property>
             <property name="text">
-             <string>Settings</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="../../QingLiaoClient.qrc">
+              <normaloff>:/MainWindow/img/setting.png</normaloff>:/MainWindow/img/setting.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -618,7 +648,47 @@ QPushButton:pressed{
              <bool>false</bool>
             </property>
             <property name="styleSheet">
-             <string notr="true"/>
+             <string notr="true">QScrollArea{
+border: 0px solid;
+border-right-width: 1px;
+border-right-color: #dcdbdc;
+background-color: #f5f5f7;
+}
+QPushButton:hover{
+	background:#f0f0f0;
+}
+QScrollBar:vertical {
+border: none;
+background: #f5f5f7;
+width: 10px;
+margin: 0px 0 0px 0;
+}
+QScrollBar::handle:vertical {
+background: Gainsboro;
+min-height: 20px;
+border-radius: 5px;
+border: none;
+}
+QScrollBar::add-line:vertical {
+border: 0px solid grey;
+background: #32CC99;
+height: 0px;
+subcontrol-position: bottom;
+subcontrol-origin: margin;
+}
+QScrollBar::sub-line:vertical {
+border: 0px solid grey;
+background: #32CC99;
+height: 0px;
+subcontrol-position: top;
+subcontrol-origin: margin;
+}
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+background: none;
+width: 0px;
+height: 0px;
+}
+</string>
             </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
@@ -631,7 +701,7 @@ QPushButton:pressed{
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>566</width>
+               <width>572</width>
                <height>282</height>
               </rect>
              </property>

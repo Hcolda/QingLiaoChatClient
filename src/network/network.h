@@ -24,6 +24,7 @@ namespace qingliao
 
         virtual void connect() {}
         virtual void disconnect() {}
+        virtual void stop() {}
 
         virtual void send_data(const std::string&) {}
         virtual void send_data(const QString& data) { send_data(data.toStdString()); }
@@ -56,6 +57,7 @@ namespace qingliao
 
         void connect();
         void disconnect();
+        void stop();
 
         void send_data(const std::string& data);
 

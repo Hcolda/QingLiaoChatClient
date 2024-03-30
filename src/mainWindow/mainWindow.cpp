@@ -7,10 +7,14 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QMessageBox>
+
+#include <cstdlib>
 #include <regex>
 
 #include "src/factory/factory.h"
 #include "src/manager/manager.h"
+#include "src/start/start.h"
+#include "src/login/login.h"
 
 struct MainWindowImpl
 {
@@ -36,9 +40,6 @@ MainWindow::MainWindow(QWidget* parent):
     //最小化按钮
     QObject::connect(ui->minimizeButton, &QPushButton::clicked, this, &MainWindow::showMinimized);
 
-    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
-    manager.addMainWindow("MainWindow", this);
-
     // 设置阴影
     {
         QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect(this);
@@ -57,6 +58,30 @@ MainWindow::~MainWindow()
     qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
     manager.removeMainWindow("MainWindow");
     delete ui;
+}
+
+void MainWindow::run()
+{
+    Start start;
+    if (start.exec() != QDialog::Accepted)
+    {
+        qingliao::BaseNetwork& network = qingliao::Factory::getGlobalFactory().getNetwork();
+        network.stop();
+        std::exit(0);
+        return;
+    }
+
+    Login login;
+    if (login.exec() != QDialog::Accepted)
+    {
+        qingliao::BaseNetwork& network = qingliao::Factory::getGlobalFactory().getNetwork();
+        network.stop();
+        std::exit(0);
+        return;
+    }
+
+    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
+    manager.addMainWindow("MainWindow", this);
 }
 
 bool MainWindow::addPrivateRoom(long long user_id)

@@ -116,6 +116,7 @@ namespace qingliao
         std::shared_ptr<asio::ip::tcp::socket>  socket_ptr;
         std::atomic<bool>                       is_running;
         std::atomic<bool>                       is_receiving;
+        std::atomic<bool>                       has_stopped;
         std::mutex                              mutex;
         std::condition_variable                 condition_variable;
         Package                                 package;
@@ -151,11 +152,14 @@ namespace qingliao
     {
         m_network_impl->is_running = true;
         m_network_impl->is_receiving = false;
+        m_network_impl->has_stopped = false;
         QThread::start();
     }
 
     Network::~Network()
     {
+        if (m_network_impl->has_stopped) return;
+        m_network_impl->has_stopped = false;
         m_network_impl->is_running = false;
         m_network_impl->io_context.stop();
         m_network_impl->condition_variable.notify_all();
@@ -199,6 +203,16 @@ namespace qingliao
             m_network_impl->heartbeat_timer.cancel();
         }
         m_network_impl->condition_variable.notify_all();
+    }
+
+    void Network::stop()
+    {
+        if (m_network_impl->has_stopped) return;
+        m_network_impl->has_stopped = false;
+        m_network_impl->is_running = false;
+        m_network_impl->io_context.stop();
+        m_network_impl->condition_variable.notify_all();
+        QThread::wait();
     }
 
     void Network::send_data(const std::string& data)
