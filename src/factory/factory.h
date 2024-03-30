@@ -24,8 +24,8 @@ namespace qls
         BaseNetwork& getNetwork() const;
         BaseMainWindow& getMainWindow() const;
 
-        std::shared_ptr<Login> createNewLoginWidget();
-        std::shared_ptr<Start> createNewStartWidget();
+        Login* createNewLoginWidget(QWidget* parent = nullptr);
+        Start* createNewStartWidget(QWidget* parent = nullptr);
 
     private:
         std::shared_ptr<FactoryImpl> m_factory_impl;

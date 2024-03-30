@@ -9,10 +9,21 @@
 #include <QMessageBox>
 #include <regex>
 
+#include "src/factory/factory.h"
+#include "src/manager/manager.h"
+
+struct MainWindowImpl
+{
+    qls::SendPrivateRoomMessageFunc sendPrivateRoomMessageFunction;
+    qls::SendGroupRoomMessageFunc   sendGroupRoomMessageFunction;
+    qls::SendCommonMessageFunc      sendCommonMessageFunction;
+};
+
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    flag_(false)
+    flag_(false),
+    mainwindow_impl_(std::make_shared<MainWindowImpl>())
 {
     ui->setupUi(this);
 
@@ -25,6 +36,9 @@ MainWindow::MainWindow(QWidget* parent):
     //最小化按钮
     QObject::connect(ui->minimizeButton, &QPushButton::clicked, this, &MainWindow::showMinimized);
 
+    qls::Manager& manager = qls::Manager::getGlobalManager();
+    manager.addMainWindow("MainWindow", this);
+
     // 设置阴影
     {
         QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect(this);
@@ -34,13 +48,80 @@ MainWindow::MainWindow(QWidget* parent):
         //设置阴影圆角
         shadow->setBlurRadius(6);
         //给嵌套QWidget设置阴影
-        //ui->widget->setGraphicsEffect(shadow);
+        ui->widget->setGraphicsEffect(shadow);
     }
 }
 
 MainWindow::~MainWindow()
 {
+    qls::Manager& manager = qls::Manager::getGlobalManager();
+    manager.removeMainWindow("MainWindow");
     delete ui;
+}
+
+bool MainWindow::addPrivateRoom(long long user_id)
+{
+    return false;
+}
+
+bool MainWindow::romovePrivateRoom(long long user_id)
+{
+    return false;
+}
+
+bool MainWindow::addGroupRoom(long long roon_id)
+{
+    return false;
+}
+
+bool MainWindow::removeGroupRoom(long long roon_id)
+{
+    return false;
+}
+
+void MainWindow::addPrivateRoomMessage(long long user_id, qls::MessageType type, const std::string& message)
+{
+}
+
+bool MainWindow::removePrivateRoomMessage(size_t index)
+{
+    return false;
+}
+
+void MainWindow::addGroupRoomMessage(long long group_id, long long sender_id, qls::MessageType type, const std::string& message)
+{
+}
+
+bool MainWindow::removeGroupRoomMessage(size_t index)
+{
+    return false;
+}
+
+void MainWindow::setPrivateRoomMessageCallback(qls::SendPrivateRoomMessageFunc func)
+{
+    mainwindow_impl_->sendPrivateRoomMessageFunction = func;
+}
+
+void MainWindow::setGroupRoomMessageCallback(qls::SendGroupRoomMessageFunc func)
+{
+    mainwindow_impl_->sendGroupRoomMessageFunction = func;
+}
+
+void MainWindow::setCommonMessageCallback(qls::SendCommonMessageFunc func)
+{
+    mainwindow_impl_->sendCommonMessageFunction = func;
+}
+
+void MainWindow::connected_callback()
+{
+}
+
+void MainWindow::disconnected_callback()
+{
+}
+
+void MainWindow::connected_error_callback(std::error_code)
+{
 }
 
 void MainWindow::mousePressEvent(QMouseEvent* event)
@@ -50,7 +131,7 @@ void MainWindow::mousePressEvent(QMouseEvent* event)
     if (event->button() == Qt::LeftButton)
     {
         flag_ = true;
-        _position = std::move(event->globalPos() - this->pos());
+        position_ = std::move(event->globalPos() - this->pos());
         event->accept();
     }
 }
@@ -60,7 +141,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent* event)
     //界面移动
     if (flag_)
     {
-        this->move(event->globalPos() - _position);
+        this->move(event->globalPos() - position_);
         event->accept();
     }
 }

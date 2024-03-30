@@ -45,6 +45,6 @@ private:
     Ui::Login *ui;
 
     bool flag_;
-    QPoint _position;
+    QPoint position_;
 };
 #endif // LOGIN_H

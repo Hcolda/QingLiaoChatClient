@@ -89,7 +89,7 @@ protected slots:
         if (event->button() == Qt::LeftButton)
         {
             flag_ = true;
-            _position = std::move(event->globalPos() - this->pos());
+            position_ = std::move(event->globalPos() - this->pos());
             event->accept();
         }
     }
@@ -99,7 +99,7 @@ protected slots:
         //界面移动
         if (flag_)
         {
-            this->move(event->globalPos() - _position);
+            this->move(event->globalPos() - position_);
             event->accept();
         }
     }
@@ -125,7 +125,7 @@ protected slots:
     
 private:
     bool flag_;
-    QPoint _position;
+    QPoint position_;
     QColor _backgroundColor;
 };
 

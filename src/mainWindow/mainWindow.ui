@@ -14,16 +14,19 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background:rgb(247,247,247);
-border-radius:15px;
-border:rgb(247,247,247);
-
-</string>
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QWidget" name="widget" native="true">
+      <property name="styleSheet">
+       <string notr="true">background:rgb(247,247,247);
+border-radius:15px;
+border:rgb(247,247,247);
+
+</string>
+      </property>
       <layout class="QGridLayout" name="gridLayout_3">
        <property name="leftMargin">
         <number>0</number>

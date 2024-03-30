@@ -29,7 +29,7 @@ private:
     Ui::Start* ui;
 
     bool flag_;
-    QPoint _position;
+    QPoint position_;
 };
 
 

@@ -45,7 +45,7 @@ void Start::mousePressEvent(QMouseEvent* event)
     if (event->button() == Qt::LeftButton)
     {
         flag_ = true;
-        _position = std::move(event->globalPos() - this->pos());
+        position_ = std::move(event->globalPos() - this->pos());
         event->accept();
     }
 }
@@ -55,7 +55,7 @@ void Start::mouseMoveEvent(QMouseEvent* event)
     //界面移动
     if (flag_)
     {
-        this->move(event->globalPos() - _position);
+        this->move(event->globalPos() - position_);
         event->accept();
     }
 }

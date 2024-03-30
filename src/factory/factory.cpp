@@ -33,13 +33,13 @@ namespace qls
         return m_factory_impl->mainWindow;
     }
 
-    std::shared_ptr<Login> Factory::createNewLoginWidget()
+    Login* Factory::createNewLoginWidget(QWidget* parent)
     {
-        return std::make_shared<Login>();
+        return new Login { parent };
     }
 
-    std::shared_ptr<Start> Factory::createNewStartWidget()
+    Start* Factory::createNewStartWidget(QWidget* parent)
     {
-        return std::make_shared<Start>();
+        return new Start { parent };
     }
 }
