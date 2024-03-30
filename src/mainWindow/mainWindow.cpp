@@ -82,6 +82,7 @@ void MainWindow::run()
 
     qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
     manager.addMainWindow("MainWindow", this);
+    show();
 }
 
 bool MainWindow::addPrivateRoom(long long user_id)
