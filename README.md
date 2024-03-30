@@ -13,9 +13,8 @@
 3. [cmake](https://cmake.org/)
 4. [vcpkg](https://github.com/microsoft/vcpkg)
 
-### 构建 QingLiao Chat Server
+### 构建 QingLiao Chat Client
 ```cmd
-vcpkg install kcp
 vcpkg install openssl
 vcpkg install asio
 vcpkg install cpp-httplib
