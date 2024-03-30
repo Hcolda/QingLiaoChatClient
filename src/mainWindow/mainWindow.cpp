@@ -14,9 +14,9 @@
 
 struct MainWindowImpl
 {
-    qls::SendPrivateRoomMessageFunc sendPrivateRoomMessageFunction;
-    qls::SendGroupRoomMessageFunc   sendGroupRoomMessageFunction;
-    qls::SendCommonMessageFunc      sendCommonMessageFunction;
+    qingliao::SendPrivateRoomMessageFunc sendPrivateRoomMessageFunction;
+    qingliao::SendGroupRoomMessageFunc   sendGroupRoomMessageFunction;
+    qingliao::SendCommonMessageFunc      sendCommonMessageFunction;
 };
 
 MainWindow::MainWindow(QWidget* parent):
@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget* parent):
     //最小化按钮
     QObject::connect(ui->minimizeButton, &QPushButton::clicked, this, &MainWindow::showMinimized);
 
-    qls::Manager& manager = qls::Manager::getGlobalManager();
+    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
     manager.addMainWindow("MainWindow", this);
 
     // 设置阴影
@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget* parent):
 
 MainWindow::~MainWindow()
 {
-    qls::Manager& manager = qls::Manager::getGlobalManager();
+    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
     manager.removeMainWindow("MainWindow");
     delete ui;
 }
@@ -79,7 +79,7 @@ bool MainWindow::removeGroupRoom(long long roon_id)
     return false;
 }
 
-void MainWindow::addPrivateRoomMessage(long long user_id, qls::MessageType type, const std::string& message)
+void MainWindow::addPrivateRoomMessage(long long user_id, qingliao::MessageType type, const std::string& message)
 {
 }
 
@@ -88,7 +88,7 @@ bool MainWindow::removePrivateRoomMessage(size_t index)
     return false;
 }
 
-void MainWindow::addGroupRoomMessage(long long group_id, long long sender_id, qls::MessageType type, const std::string& message)
+void MainWindow::addGroupRoomMessage(long long group_id, long long sender_id, qingliao::MessageType type, const std::string& message)
 {
 }
 
@@ -97,17 +97,17 @@ bool MainWindow::removeGroupRoomMessage(size_t index)
     return false;
 }
 
-void MainWindow::setPrivateRoomMessageCallback(qls::SendPrivateRoomMessageFunc func)
+void MainWindow::setPrivateRoomMessageCallback(qingliao::SendPrivateRoomMessageFunc func)
 {
     mainwindow_impl_->sendPrivateRoomMessageFunction = func;
 }
 
-void MainWindow::setGroupRoomMessageCallback(qls::SendGroupRoomMessageFunc func)
+void MainWindow::setGroupRoomMessageCallback(qingliao::SendGroupRoomMessageFunc func)
 {
     mainwindow_impl_->sendGroupRoomMessageFunction = func;
 }
 
-void MainWindow::setCommonMessageCallback(qls::SendCommonMessageFunc func)
+void MainWindow::setCommonMessageCallback(qingliao::SendCommonMessageFunc func)
 {
     mainwindow_impl_->sendCommonMessageFunction = func;
 }

@@ -7,7 +7,7 @@
 #include "manager.h"
 #include "src/mainWindow/baseMainWindow.h"
 
-namespace qls
+namespace qingliao
 {
     struct ManagerImpl;
     
@@ -20,7 +20,7 @@ namespace qls
         static Manager& getGlobalManager();
         ~Manager();
 
-        bool addMainWindow(const std::string&, qls::BaseMainWindow*);
+        bool addMainWindow(const std::string&, qingliao::BaseMainWindow*);
         bool removeMainWindow(const std::string&);
 
     protected:

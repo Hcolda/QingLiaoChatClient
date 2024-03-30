@@ -7,14 +7,14 @@
 #include "src/factory/factory.h"
 #include "src/mainWindow/baseMainWindow.h"
 
-namespace qls
+namespace qingliao
 {
     struct ManagerImpl
     {
         BaseNetwork& network = Factory::getGlobalFactory().getNetwork();
 
         std::unordered_map<std::string,
-            qls::BaseMainWindow*>   mainWindow_map;
+            qingliao::BaseMainWindow*>   mainWindow_map;
         std::shared_mutex           mainWindow_map_mutex;
     };
 
@@ -54,7 +54,7 @@ namespace qls
         return true;
     }
 
-    bool Manager::addMainWindow(const std::string& name, qls::BaseMainWindow* window)
+    bool Manager::addMainWindow(const std::string& name, qingliao::BaseMainWindow* window)
     {
         std::unique_lock<std::shared_mutex> lock(m_manager_impl->mainWindow_map_mutex);
         auto iter = m_manager_impl->mainWindow_map.find(name);

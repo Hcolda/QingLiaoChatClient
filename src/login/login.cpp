@@ -125,8 +125,8 @@ QPushButton:pressed{
         ui->frame->setGraphicsEffect(shadow);
     }
 
-    qls::Manager& manager = qls::Manager::getGlobalManager();
-    qls::BaseNetwork& network = qls::Factory::getGlobalFactory().getNetwork();
+    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
+    qingliao::BaseNetwork& network = qingliao::Factory::getGlobalFactory().getNetwork();
     manager.addMainWindow("Login", this);
     // network.connect();
     
@@ -138,7 +138,7 @@ QPushButton:pressed{
 
 Login::~Login()
 {
-    qls::Manager& manager = qls::Manager::getGlobalManager();
+    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
     manager.removeMainWindow("Login");
     delete ui;
 }

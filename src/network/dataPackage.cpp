@@ -5,7 +5,7 @@
 
 #include "networkEndinass.hpp"
 
-namespace qls
+namespace qingliao
 {
     std::shared_ptr<DataPackage> DataPackage::makePackage(std::string_view data)
     {
@@ -20,7 +20,7 @@ namespace qls
 
     std::shared_ptr<DataPackage> DataPackage::stringToPackage(const std::string& data)
     {
-        using namespace qls;
+        using namespace qingliao;
 
         // 数据包过小
         if (data.size() < sizeof(DataPackage)) throw std::logic_error("data is too small!");
@@ -56,7 +56,7 @@ namespace qls
 
     std::string DataPackage::packageToString() noexcept
     {
-        using namespace qls;
+        using namespace qingliao;
 
         size_t localLength = this->length;
 

@@ -4,7 +4,7 @@
 #include <string>
 #include <Json.h>
 
-namespace qls
+namespace qingliao
 {
     inline qjson::JObject makeMessage(const std::string& state, const std::string& msg)
     {

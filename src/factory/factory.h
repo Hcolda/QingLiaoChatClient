@@ -8,7 +8,7 @@
 #include "src/login/login.h"
 #include "src/start/start.h"
 
-namespace qls
+namespace qingliao
 {
     struct FactoryImpl;
 

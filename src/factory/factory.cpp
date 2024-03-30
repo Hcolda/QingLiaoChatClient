@@ -1,6 +1,6 @@
 ﻿#include "factory.h"
 
-namespace qls
+namespace qingliao
 {
     struct FactoryImpl
     {

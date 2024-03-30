@@ -3,7 +3,7 @@
 
 #include <concepts>
 
-namespace qls
+namespace qingliao
 {
     /*
     * @brief 判断本地序是否为大端序

@@ -13,7 +13,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class Login; }
 QT_END_NAMESPACE
 
-class Login : public QDialog, public qls::BaseMainWindow
+class Login : public QDialog, public qingliao::BaseMainWindow
 {
     Q_OBJECT
 

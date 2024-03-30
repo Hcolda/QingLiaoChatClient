@@ -16,7 +16,7 @@ QT_END_NAMESPACE
 
 struct MainWindowImpl;
 
-class MainWindow : public QMainWindow, public qls::BaseMainWindow
+class MainWindow : public QMainWindow, public qingliao::BaseMainWindow
 {
     Q_OBJECT
 
@@ -29,14 +29,14 @@ public:
     bool addGroupRoom(long long roon_id);
     bool removeGroupRoom(long long roon_id);
 
-    void addPrivateRoomMessage(long long user_id, qls::MessageType type, const std::string& message);
+    void addPrivateRoomMessage(long long user_id, qingliao::MessageType type, const std::string& message);
     bool removePrivateRoomMessage(size_t index);
-    void addGroupRoomMessage(long long group_id, long long sender_id, qls::MessageType type, const std::string& message);
+    void addGroupRoomMessage(long long group_id, long long sender_id, qingliao::MessageType type, const std::string& message);
     bool removeGroupRoomMessage(size_t index);
 
-    void setPrivateRoomMessageCallback(qls::SendPrivateRoomMessageFunc func);
-    void setGroupRoomMessageCallback(qls::SendGroupRoomMessageFunc func);
-    void setCommonMessageCallback(qls::SendCommonMessageFunc func);
+    void setPrivateRoomMessageCallback(qingliao::SendPrivateRoomMessageFunc func);
+    void setGroupRoomMessageCallback(qingliao::SendGroupRoomMessageFunc func);
+    void setCommonMessageCallback(qingliao::SendCommonMessageFunc func);
 
     void connected_callback();
     void disconnected_callback();

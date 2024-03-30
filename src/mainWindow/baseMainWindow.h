@@ -5,7 +5,7 @@
 #include <string>
 #include <system_error>
 
-namespace qls
+namespace qingliao
 {
     using SendPrivateRoomMessageFunc = std::function<void(long long, const std::string&)>;
     using SendGroupRoomMessageFunc = std::function<void(long long, const std::string&)>;

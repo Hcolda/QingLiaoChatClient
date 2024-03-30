@@ -4,14 +4,14 @@
 
 #include "networkEndinass.hpp"
 
-void qls::Package::write(std::string_view data)
+void qingliao::Package::write(std::string_view data)
 {
     m_buffer += data;
 }
 
-bool qls::Package::canRead() const
+bool qingliao::Package::canRead() const
 {
-    using namespace qls;
+    using namespace qingliao;
 
     if (m_buffer.size() < sizeof(int))
         return false;
@@ -25,9 +25,9 @@ bool qls::Package::canRead() const
     return true;
 }
 
-size_t qls::Package::firstMsgLength() const
+size_t qingliao::Package::firstMsgLength() const
 {
-    using namespace qls;
+    using namespace qingliao;
 
     if (m_buffer.size() < sizeof(int))
         return 0;
@@ -38,7 +38,7 @@ size_t qls::Package::firstMsgLength() const
     return size_t(length);
 }
 
-std::string qls::Package::read()
+std::string qingliao::Package::read()
 {
     if (!canRead())
         throw std::logic_error("Can't read data");
@@ -51,17 +51,17 @@ std::string qls::Package::read()
     return result;
 }
 
-const std::string& qls::Package::readBuffer() const
+const std::string& qingliao::Package::readBuffer() const
 {
     return m_buffer;
 }
 
-void qls::Package::setBuffer(const std::string& b)
+void qingliao::Package::setBuffer(const std::string& b)
 {
     m_buffer = b;
 }
 
-std::string qls::Package::makePackage(std::string_view data)
+std::string qingliao::Package::makePackage(std::string_view data)
 {
     int lenght = static_cast<int>(data.size());
     std::string result;

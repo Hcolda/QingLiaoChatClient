@@ -7,7 +7,7 @@
 #include <string>
 #include <asio.hpp>
 
-namespace qls
+namespace qingliao
 {
     using ReceiveStdStringFunction = std::function<void(std::string)>;
 

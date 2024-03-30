@@ -19,7 +19,7 @@
 #include "package.h"
 #include "dataPackage.h"
 
-namespace qls
+namespace qingliao
 {
     using asio::ip::tcp;
     using asio::awaitable;

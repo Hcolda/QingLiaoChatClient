@@ -11,7 +11,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class Start; }
 QT_END_NAMESPACE
 
-class Start: public QDialog, public qls::BaseMainWindow
+class Start: public QDialog, public qingliao::BaseMainWindow
 {
     Q_OBJECT
 
