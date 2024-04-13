@@ -33,6 +33,10 @@ set(PROJECT_SOURCES
         src/start/start.cpp
         src/start/start.ui
 
+        src/register/register.h
+        src/register/register.cpp
+        src/register/register.ui
+
         src/messageBox/messageBox.hpp
 
         src/network/dataPackage.cpp
@@ -77,7 +81,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 
-    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES} src/login/)
+    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 else()
     if(ANDROID)
         add_library(QingLiaoClient SHARED
@@ -89,7 +93,7 @@ else()
         add_executable(QingLiaoClient WIN32
             ${PROJECT_SOURCES}
         )
-        target_include_directories(QingLiaoClient PUBLIC include/ parser/)
+        target_include_directories(QingLiaoClient PUBLIC include/ src/parser/)
         target_link_libraries(QingLiaoClient PRIVATE
             OpenSSL::SSL OpenSSL::Crypto asio::asio kcp::kcp)
     endif()

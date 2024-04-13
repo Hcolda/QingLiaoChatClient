@@ -25,7 +25,7 @@ Login::Login(QWidget *parent) :
     this->setAttribute(Qt::WA_TranslucentBackground);
 
     //关闭按钮
-    QObject::connect(ui->pushButton, &QPushButton::clicked, this, &Login::reject);
+    QObject::connect(ui->pushButton, &QPushButton::clicked, this, &Login::close);
     //最小化按钮
     QObject::connect(ui->pushButton_2, &QPushButton::clicked, this, &Login::showMinimized);
 
