@@ -23,10 +23,12 @@ namespace qingliao
         BaseMainWindow() = default;
         virtual ~BaseMainWindow() = default;
 
+        virtual void run() {}
+
         virtual bool addPrivateRoom(long long user_id) { return false; }
         virtual bool romovePrivateRoom(long long user_id) { return false; }
-        virtual bool addGroupRoom(long long roon_id) { return false; }
-        virtual bool removeGroupRoom(long long roon_id) { return false; }
+        virtual bool addGroupRoom(long long room_id) { return false; }
+        virtual bool removeGroupRoom(long long room_id) { return false; }
 
         virtual void addPrivateRoomMessage(long long user_id, MessageType type, const std::string& message) {}
         virtual bool removePrivateRoomMessage(size_t index) { return false; }

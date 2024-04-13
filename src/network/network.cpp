@@ -9,6 +9,9 @@
 #include <string>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
+#include <random>
+#include <future>
 
 #include <Logger.hpp>
 #include <QuqiCrypto.hpp>
@@ -105,8 +108,6 @@ namespace qingliao
         return result;
     }
 
-    
-
     struct NetworkImpl
     {
         std::string host = "localhost";
@@ -140,10 +141,24 @@ namespace qingliao
                                         connectedErrorCallbackFunction_map;
         std::shared_mutex               connectedErrorCallbackFunction_map_mutex;
 
+        std::mt19937_64                 requestID_mt;
+        std::mutex                      requestID_mt_mutex;
+        std::unordered_set<long long>   requestID_set;
+        std::shared_mutex               requestID_set_mutex;
+        std::unordered_map<long long,
+            std::function<void(std::shared_ptr<DataPackage>)>>
+                                        requestID2Function_map;
+        std::shared_mutex               requestID2Function_map_mutex;
+
         NetworkImpl() :
             deadline_timer(io_context),
             heartbeat_timer(io_context),
-            socket_ptr(std::make_shared<asio::ip::tcp::socket>(io_context)) {}
+            socket_ptr(std::make_shared<asio::ip::tcp::socket>(io_context)),
+            requestID_mt(std::random_device{}())
+        {
+            input_buffer.resize(8192);
+        }
+
         ~NetworkImpl() = default;
     };
 
@@ -218,13 +233,51 @@ namespace qingliao
     void Network::send_data(const std::string& data)
     {
         if (!m_network_impl->is_receiving)
-            throw std::runtime_error("socket is not able to use");
+            throw std::runtime_error("Socket is not able to use");
 
         auto wrapper = std::make_shared<StringWrapper>(data);
 
         // m_network_impl->socket_ptr->async_send(asio::buffer(data), [](auto, auto){return;});
         asio::async_write(*(m_network_impl->socket_ptr),
             asio::buffer(wrapper->data), std::bind(&Network::handle_write, this, _1, _2, wrapper));
+    }
+
+    std::shared_ptr<DataPackage> Network::send_data_with_result_n_option(const std::string& data,
+        const std::function<void(std::shared_ptr<DataPackage>&)>& option_function)
+    {
+        std::promise<std::shared_ptr<DataPackage>> future_result;
+        send_data_with_option(data, option_function,
+            [&future_result](std::shared_ptr<DataPackage> pack) {
+                future_result.set_value(std::move(pack));
+            });
+        return future_result.get_future().get();
+    }
+
+    long long Network::send_data_with_option(const std::string& origin_data,
+        const std::function<void(std::shared_ptr<DataPackage>&)>& option_function,
+        const std::function<void(std::shared_ptr<DataPackage>)>& callback_function)
+    {
+        auto pack = DataPackage::makePackage(origin_data);
+        option_function(pack);
+
+        long long requestId = 0;
+        {
+            std::unique_lock<std::mutex> mt_lock(m_network_impl->requestID_mt_mutex, std::defer_lock);
+            std::unique_lock<std::shared_mutex> set_lock(m_network_impl->requestID_set_mutex, std::defer_lock),
+                map_lock(m_network_impl->requestID2Function_map_mutex, std::defer_lock);
+            std::lock(mt_lock, set_lock, map_lock);
+            do
+            {
+                requestId = m_network_impl->requestID_mt();
+            } while (m_network_impl->requestID_set.find(requestId) != m_network_impl->requestID_set.cend());
+            m_network_impl->requestID_set.insert(requestId);
+        }
+        pack->requestID = requestId;
+
+        send_data(pack->packageToString());
+        m_network_impl->requestID2Function_map[requestId] = callback_function;
+
+        return requestId;
     }
 
     bool Network::add_received_stdstring_callback(const std::string& name, ReceiveStdStringFunction func)
@@ -367,6 +420,34 @@ namespace qingliao
 
     void Network::call_received_stdstring(std::string data)
     {
+        try
+        {
+            auto pack = DataPackage::stringToPackage(data);
+            long long requestID = pack->requestID;
+            if (pack->requestID != 0)
+            {
+                std::unique_lock<std::shared_mutex> map_lock(m_network_impl->requestID2Function_map_mutex,
+                    std::defer_lock),
+                    set_lock(m_network_impl->requestID_set_mutex, std::defer_lock);
+                std::lock(map_lock, set_lock);
+                {
+                    auto iter = m_network_impl->requestID_set.find(requestID);
+                    if (iter == m_network_impl->requestID_set.cend()) return;
+                    m_network_impl->requestID_set.erase(iter);
+                }
+                {
+                    auto iter = m_network_impl->requestID2Function_map.find(requestID);
+                    if (iter != m_network_impl->requestID2Function_map.cend()) iter->second(std::move(pack));
+                    m_network_impl->requestID2Function_map.erase(iter);
+                }
+                return;
+            }
+        }
+        catch (...)
+        {
+            return;
+        }
+
         std::shared_lock<std::shared_mutex> lock(
             m_network_impl->revceiveStdStringFunction_map_mutex);
 
@@ -461,14 +542,21 @@ namespace qingliao
 
     void Network::handle_read(const std::error_code& error, std::size_t n)
     {
+        if (!n)
+        {
+            async_read();
+            return;
+        }
         std::unique_lock<std::mutex> lock(m_network_impl->mutex);
         if (!m_network_impl->is_running || !m_network_impl->is_receiving)
             return;
 
         if (!error)
         {
-            m_network_impl->package.write(m_network_impl->input_buffer);
+            m_network_impl->package.write({ m_network_impl->input_buffer.begin(),
+                m_network_impl->input_buffer.begin() + n });
             m_network_impl->input_buffer.clear();
+            m_network_impl->input_buffer.resize(8192);
 
             if (m_network_impl->package.canRead())
             {

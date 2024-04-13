@@ -95,12 +95,12 @@ bool MainWindow::romovePrivateRoom(long long user_id)
     return false;
 }
 
-bool MainWindow::addGroupRoom(long long roon_id)
+bool MainWindow::addGroupRoom(long long room_id)
 {
     return false;
 }
 
-bool MainWindow::removeGroupRoom(long long roon_id)
+bool MainWindow::removeGroupRoom(long long room_id)
 {
     return false;
 }

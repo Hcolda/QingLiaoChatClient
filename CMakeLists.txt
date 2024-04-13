@@ -44,6 +44,8 @@ set(PROJECT_SOURCES
 
         src/manager/manager.h
         src/manager/manager.cpp
+        src/manager/dataManager.h
+        src/manager/dataManager.cpp
 
         src/factory/factory.h
         src/factory/factory.cpp

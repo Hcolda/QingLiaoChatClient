@@ -7,6 +7,8 @@
 #include <string>
 #include <asio.hpp>
 
+#include "src/network/dataPackage.h"
+
 namespace qingliao
 {
     using ReceiveStdStringFunction = std::function<void(std::string)>;
@@ -22,6 +24,12 @@ namespace qingliao
         BaseNetwork() = default;
         virtual ~BaseNetwork() = default;
 
+        // 禁止复制和移动
+        BaseNetwork(const BaseNetwork&) = delete;
+        BaseNetwork(BaseNetwork&&) = delete;
+        BaseNetwork& operator=(const BaseNetwork&) = delete;
+        BaseNetwork& operator=(BaseNetwork&&) = delete;
+
         virtual void connect() {}
         virtual void disconnect() {}
         virtual void stop() {}
@@ -29,14 +37,31 @@ namespace qingliao
         virtual void send_data(const std::string&) {}
         virtual void send_data(const QString& data) { send_data(data.toStdString()); }
 
-        virtual bool add_received_stdstring_callback(const std::string&, ReceiveStdStringFunction) { return false; }
+        virtual std::shared_ptr<DataPackage> send_data_with_result_n_option(const std::string& origin_data,
+            const std::function<void(std::shared_ptr<DataPackage>&)>& option_function) { return std::shared_ptr<DataPackage>(); }
+        // return a request id
+        virtual long long send_data_with_option(const std::string& origin_data,
+            const std::function<void(std::shared_ptr<DataPackage>&)>& option_function,
+            const std::function<void(std::shared_ptr<DataPackage>)>& callback_function) { return 0ll; }
+
+        virtual bool add_received_stdstring_callback(const std::string&,
+             ReceiveStdStringFunction) { return false; }
+
         virtual bool remove_received_stdstring_callback(const std::string&) { return false; }
 
-        virtual bool add_connected_callback(const std::string&, std::function<void()>) { return false; }
+        virtual bool add_connected_callback(const std::string&,
+            std::function<void()>) { return false; }
+
         virtual bool remove_connected_callback(const std::string&) { return false; }
-        virtual bool add_disconnected_callback(const std::string&, std::function<void()>) { return false; }
+
+        virtual bool add_disconnected_callback(const std::string&,
+            std::function<void()>) { return false; }
+
         virtual bool remove_disconnected_callback(const std::string&) { return false; }
-        virtual bool add_connected_error_callback(const std::string&, std::function<void(std::error_code)>) { return false; }
+
+        virtual bool add_connected_error_callback(const std::string&,
+            std::function<void(std::error_code)>) { return false; }
+
         virtual bool remove_connected_error_callback(const std::string&) { return false; }
     };
 
@@ -60,6 +85,12 @@ namespace qingliao
         void stop();
 
         void send_data(const std::string& data);
+
+        virtual std::shared_ptr<DataPackage> send_data_with_result_n_option(const std::string& origin_data,
+            const std::function<void(std::shared_ptr<DataPackage>&)>& option_function);
+        virtual long long send_data_with_option(const std::string& origin_data,
+            const std::function<void(std::shared_ptr<DataPackage>&)>& option_function,
+            const std::function<void(std::shared_ptr<DataPackage>)>& callback_function);
 
         virtual bool add_received_stdstring_callback(const std::string&, ReceiveStdStringFunction);
         virtual bool remove_received_stdstring_callback(const std::string&);

@@ -25,7 +25,7 @@ Login::Login(QWidget *parent) :
     this->setAttribute(Qt::WA_TranslucentBackground);
 
     //关闭按钮
-    QObject::connect(ui->pushButton, &QPushButton::clicked, this, &Login::close);
+    QObject::connect(ui->pushButton, &QPushButton::clicked, this, &Login::reject);
     //最小化按钮
     QObject::connect(ui->pushButton_2, &QPushButton::clicked, this, &Login::showMinimized);
 
@@ -97,11 +97,34 @@ QPushButton:pressed{
             {
                 WarningBox box("警告", "账户名为空！", QMessageBox::StandardButton::Ok, this);
                 box.exec();
+                return;
             }
             else if (!ui->lineEdit_2->text().size())
             {
                 WarningBox box("警告", "密码为空！", QMessageBox::StandardButton::Ok, this);
                 box.exec();
+                return;
+            }
+
+            auto& dm = qingliao::Factory::getGlobalFactory().getDataManager();
+            bool ok = false;
+            long long user_id = ui->lineEdit->text().toLongLong(&ok);
+            if (!ok)
+            {
+                WarningBox box("警告", "账户必须是数字！", QMessageBox::StandardButton::Ok, this);
+                box.exec();
+                return;
+            }
+            if (dm.signIn(user_id, ui->lineEdit_2->text().toStdString()))
+            {
+                accept();
+                return;
+            }
+            else
+            {
+                WarningBox box("警告", "账户或密码错误！", QMessageBox::StandardButton::Ok, this);
+                box.exec();
+                return;
             }
 
             return;

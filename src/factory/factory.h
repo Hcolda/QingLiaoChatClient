@@ -7,6 +7,7 @@
 #include "src/mainWindow/baseMainWindow.h"
 #include "src/login/login.h"
 #include "src/start/start.h"
+#include "src/manager/dataManager.h"
 
 namespace qingliao
 {
@@ -21,8 +22,16 @@ namespace qingliao
         static Factory& getGlobalFactory();
         ~Factory();
 
+        // 禁止复制和移动
+        Factory(const Factory&) = delete;
+        Factory(Factory&&) = delete;
+
+        Factory& operator=(const Factory&) = delete;
+        Factory& operator=(Factory&&) = delete;
+
         BaseNetwork& getNetwork() const;
         BaseMainWindow& getMainWindow() const;
+        DataManager& getDataManager() const;
 
         Login* createNewLoginWidget(QWidget* parent = nullptr);
         Start* createNewStartWidget(QWidget* parent = nullptr);

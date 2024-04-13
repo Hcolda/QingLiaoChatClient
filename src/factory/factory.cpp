@@ -1,11 +1,14 @@
 ﻿#include "factory.h"
 
+#include "src/mainWindow/mainWindow.h"
+
 namespace qingliao
 {
     struct FactoryImpl
     {
         Network network;
-        BaseMainWindow mainWindow;
+        MainWindow mainWindow;
+        DataManager dataManager;
     };
 
     Factory::Factory() :
@@ -31,6 +34,11 @@ namespace qingliao
     BaseMainWindow& Factory::getMainWindow() const
     {
         return m_factory_impl->mainWindow;
+    }
+
+    DataManager& Factory::getDataManager() const
+    {
+        return m_factory_impl->dataManager;
     }
 
     Login* Factory::createNewLoginWidget(QWidget* parent)

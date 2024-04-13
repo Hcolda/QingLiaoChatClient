@@ -28,8 +28,8 @@ public:
 
     bool addPrivateRoom(long long user_id);
     bool romovePrivateRoom(long long user_id);
-    bool addGroupRoom(long long roon_id);
-    bool removeGroupRoom(long long roon_id);
+    bool addGroupRoom(long long room_id);
+    bool removeGroupRoom(long long room_id);
 
     void addPrivateRoomMessage(long long user_id, qingliao::MessageType type, const std::string& message);
     bool removePrivateRoomMessage(size_t index);

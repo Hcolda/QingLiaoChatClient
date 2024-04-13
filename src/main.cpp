@@ -1,6 +1,4 @@
-﻿#include "src/login/login.h"
-#include "src/start/start.h"
-#include "src/mainWindow/mainWindow.h"
+﻿#include "src/factory/factory.h"
 
 #include <QApplication>
 #include <QLocale>
@@ -19,7 +17,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    MainWindow main_window;
+    auto& main_window = qingliao::Factory::getGlobalFactory().getMainWindow();
     main_window.run();
     return a.exec();
 }
