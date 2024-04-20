@@ -23,7 +23,7 @@ namespace qingliao
 
     DataManager::~DataManager() {}
 
-    bool DataManager::signUp(const std::string& email, const std::string& password)
+    bool DataManager::signUp(const std::string& email, const std::string& password, long long& user_id)
     {
         qjson::JObject json(qjson::JValueType::JDict);
         json["function"] = "register";
@@ -35,7 +35,8 @@ namespace qingliao
         try
         {
             qjson::JObject rejson = qjson::JParser::fastParse(pack->getData());
-            if (rejson["status"].getString() != "success") return false;
+            if (rejson["state"].getString() != "success") return false;
+            user_id = rejson["user_id"].getInt();
         }
         catch (...)
         {

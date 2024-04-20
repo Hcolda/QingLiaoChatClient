@@ -18,12 +18,12 @@
 
 #include <format>
 
-class MessageBox : public QMessageBox
+class BaseMessageBox : public QMessageBox
 {
     Q_OBJECT
 
 public:
-    MessageBox( QMessageBox::Icon icon,
+    BaseMessageBox( QMessageBox::Icon icon,
                 const QString& title,
                 const QString& text,
                 QMessageBox::StandardButtons buttons = NoButton,
@@ -78,7 +78,7 @@ QPushButton:pressed{
         }
     }
 
-    ~MessageBox() = default;
+    ~BaseMessageBox() = default;
 
 protected slots:
 
@@ -129,7 +129,7 @@ private:
     QColor _backgroundColor;
 };
 
-class WarningBox : public MessageBox
+class WarningBox : public BaseMessageBox
 {
     Q_OBJECT
 
@@ -138,7 +138,7 @@ public:
         const QString& text,
         QMessageBox::StandardButtons buttons = NoButton,
         QWidget* parent = nullptr) :
-        MessageBox(QMessageBox::Icon::Warning,
+        BaseMessageBox(QMessageBox::Icon::Warning,
             title, text, buttons, parent, "#FFEBEE", "#D50000")
     {
         auto list = this->buttons();

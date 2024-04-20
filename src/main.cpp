@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include <QSharedMemory>
 
 int main(int argc, char *argv[])
 {
@@ -17,6 +18,13 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
+    /*QSharedMemory shared("QingLiaoClient");
+    if (!shared.create(1))
+    {
+        return 0;
+    }*/
+
     auto& main_window = qingliao::Factory::getGlobalFactory().getMainWindow();
     main_window.run();
     return a.exec();

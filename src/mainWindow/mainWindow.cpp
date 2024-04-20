@@ -34,7 +34,6 @@ MainWindow::MainWindow(QWidget* parent):
     //界面设置
     this->setWindowFlags(Qt::FramelessWindowHint);
     this->setAttribute(Qt::WA_TranslucentBackground);
-    this->setAttribute(Qt::WA_DeleteOnClose, true);
 
     //关闭按钮
     QObject::connect(ui->closeButton, &QPushButton::clicked, this, &MainWindow::close);
@@ -56,8 +55,10 @@ MainWindow::MainWindow(QWidget* parent):
 
 MainWindow::~MainWindow()
 {
-    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
+    /*auto& manager = qingliao::Manager::getGlobalManager();
+    auto& network = qingliao::Factory::getGlobalFactory().getNetwork();
     manager.removeMainWindow("MainWindow");
+    network.stop();*/
     delete ui;
 }
 

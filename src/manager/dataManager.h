@@ -22,7 +22,7 @@ namespace qingliao
 		DataManager& operator=(const DataManager&) = delete;
 		DataManager& operator=(DataManager&&) = delete;
 
-		static bool signUp(const std::string& email, const std::string& password);
+		static bool signUp(const std::string& email, const std::string& password, long long& user_id);
 		bool signIn(long long user_id, const std::string& password);
 
 		bool addPrivateRoom(long long user_id);

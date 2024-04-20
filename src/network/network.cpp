@@ -18,7 +18,6 @@
 #include <Json.h>
 
 #include "definition.hpp"
-#include "websiteFunctions.hpp"
 #include "package.h"
 #include "dataPackage.h"
 
@@ -245,6 +244,9 @@ namespace qingliao
     std::shared_ptr<DataPackage> Network::send_data_with_result_n_option(const std::string& data,
         const std::function<void(std::shared_ptr<DataPackage>&)>& option_function)
     {
+        if (!m_network_impl->is_receiving)
+            throw std::runtime_error("Socket is not able to use");
+
         std::promise<std::shared_ptr<DataPackage>> future_result;
         send_data_with_option(data, option_function,
             [&future_result](std::shared_ptr<DataPackage> pack) {
@@ -257,6 +259,9 @@ namespace qingliao
         const std::function<void(std::shared_ptr<DataPackage>&)>& option_function,
         const std::function<void(std::shared_ptr<DataPackage>)>& callback_function)
     {
+        if (!m_network_impl->is_receiving)
+            throw std::runtime_error("Socket is not able to use");
+
         auto pack = DataPackage::makePackage(origin_data);
         option_function(pack);
 
