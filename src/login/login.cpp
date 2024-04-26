@@ -13,6 +13,8 @@
 #include "src/factory/factory.h"
 #include "src/register/register.h"
 
+extern qingliao::Factory clientFactory;
+
 static void addSetVisableButton(QLineEdit* parent)
 {
     QPushButton* btn = new QPushButton;
@@ -111,7 +113,7 @@ Login::Login(QWidget *parent) :
         }
 
         {
-            auto& dm = qingliao::Factory::getGlobalFactory().getDataManager();
+            auto dm = clientFactory.getDataManager();
             bool ok = false;
             long long user_id = ui->lineEdit->text().toLongLong(&ok);
             if (!ok)
@@ -120,7 +122,7 @@ Login::Login(QWidget *parent) :
                 box.exec();
                 return;
             }
-            if (dm.signIn(user_id, ui->lineEdit_2->text().toStdString()))
+            if (dm->signIn(user_id, ui->lineEdit_2->text().toStdString()))
             {
                 accept();
                 return;
@@ -156,8 +158,8 @@ Login::Login(QWidget *parent) :
         ui->frame->setGraphicsEffect(shadow);
     }
 
-    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
-    manager.addMainWindow("Login", this);
+    auto manager = clientFactory.getManager();
+    manager->addMainWindow("Login", this);
     
     // 毛玻璃效果
     /*QGraphicsBlurEffect* effect = new QGraphicsBlurEffect(this);
@@ -167,8 +169,8 @@ Login::Login(QWidget *parent) :
 
 Login::~Login()
 {
-    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
-    manager.removeMainWindow("Login");
+    auto manager = clientFactory.getManager();
+    manager->removeMainWindow("Login");
     delete ui;
 }
 

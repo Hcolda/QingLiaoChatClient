@@ -13,6 +13,8 @@
 #include "src/factory/factory.h"
 #include "src/network/network.h"
 
+extern qingliao::Factory clientFactory;
+
 Start::Start(QWidget* parent):
     QDialog(parent),
     ui(new Ui::Start),
@@ -39,16 +41,16 @@ Start::Start(QWidget* parent):
         ui->widget->setGraphicsEffect(shadow);
     }
 
-    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
-    qingliao::BaseNetwork& network = qingliao::Factory::getGlobalFactory().getNetwork();
-    manager.addMainWindow("Start", this);
-    network.connect();
+    auto manager = clientFactory.getManager();
+    auto network = clientFactory.getNetwork();
+    manager->addMainWindow("Start", this);
+    network->connect();
 }
 
 Start::~Start()
 {
-    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
-    manager.removeMainWindow("Start");
+    auto manager = clientFactory.getManager();
+    manager->removeMainWindow("Start");
     delete ui;
 }
 

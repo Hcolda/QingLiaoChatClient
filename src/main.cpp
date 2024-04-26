@@ -1,9 +1,13 @@
 ﻿#include "src/factory/factory.h"
+#include "src/mainWindow/mainWindow.h"
 
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
 #include <QSharedMemory>
+
+// 全局变量
+qingliao::Factory clientFactory;
 
 int main(int argc, char *argv[])
 {
@@ -25,7 +29,7 @@ int main(int argc, char *argv[])
         return 0;
     }*/
 
-    auto& main_window = qingliao::Factory::getGlobalFactory().getMainWindow();
-    main_window.run();
+    MainWindow mainWindow;
+    mainWindow.run();
     return a.exec();
 }

@@ -8,6 +8,8 @@
 #include "src/factory/factory.h"
 #include "src/parser/Json.h"
 
+extern qingliao::Factory clientFactory;
+
 namespace qingliao
 {
     struct DataManagerImpl
@@ -30,8 +32,8 @@ namespace qingliao
         json["parameters"]["email"] = email;
         json["parameters"]["password"] = password;
 
-        auto& network = Factory::getGlobalFactory().getNetwork();
-        auto pack = network.send_data_with_result_n_option(qjson::JWriter::fastWrite(json), [](std::shared_ptr<DataPackage>& pack) { pack->type = 1; });
+        auto network = clientFactory.getNetwork();
+        auto pack = network->send_data_with_result_n_option(qjson::JWriter::fastWrite(json), [](std::shared_ptr<DataPackage>& pack) { pack->type = 1; });
         try
         {
             qjson::JObject rejson = qjson::JParser::fastParse(pack->getData());
@@ -52,8 +54,8 @@ namespace qingliao
         json["parameters"]["user_id"] = user_id;
         json["parameters"]["password"] = password;
 
-        auto& network = Factory::getGlobalFactory().getNetwork();
-        auto pack = network.send_data_with_result_n_option(qjson::JWriter::fastWrite(json), [](std::shared_ptr<DataPackage>& pack) { pack->type = 1; });
+        auto network = clientFactory.getNetwork();
+        auto pack = network->send_data_with_result_n_option(qjson::JWriter::fastWrite(json), [](std::shared_ptr<DataPackage>& pack) { pack->type = 1; });
         try
         {
             qjson::JObject rejson = qjson::JParser::fastParse(pack->getData());

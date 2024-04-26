@@ -16,6 +16,8 @@
 #include "src/start/start.h"
 #include "src/login/login.h"
 
+extern qingliao::Factory clientFactory;
+
 struct MainWindowImpl
 {
     qingliao::SendPrivateRoomMessageFunc sendPrivateRoomMessageFunction;
@@ -55,10 +57,10 @@ MainWindow::MainWindow(QWidget* parent):
 
 MainWindow::~MainWindow()
 {
-    /*auto& manager = qingliao::Manager::getGlobalManager();
-    auto& network = qingliao::Factory::getGlobalFactory().getNetwork();
-    manager.removeMainWindow("MainWindow");
-    network.stop();*/
+    auto manager = clientFactory.getManager();
+    auto network = clientFactory.getNetwork();
+    manager->removeMainWindow("MainWindow");
+    network->stop();
     delete ui;
 }
 
@@ -67,21 +69,21 @@ void MainWindow::run()
     Start start;
     if (start.exec() != QDialog::Accepted)
     {
-        qingliao::BaseNetwork& network = qingliao::Factory::getGlobalFactory().getNetwork();
-        network.stop();
+        auto network = clientFactory.getNetwork();
+        network->stop();
         return;
     }
 
     Login login;
     if (login.exec() != QDialog::Accepted)
     {
-        qingliao::BaseNetwork& network = qingliao::Factory::getGlobalFactory().getNetwork();
-        network.stop();
+        auto network = clientFactory.getNetwork();
+        network->stop();
         return;
     }
 
-    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
-    manager.addMainWindow("MainWindow", this);
+    auto manager = clientFactory.getManager();
+    manager->addMainWindow("MainWindow", this);
     show();
 }
 

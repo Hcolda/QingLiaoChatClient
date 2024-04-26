@@ -8,6 +8,7 @@
 #include "src/login/login.h"
 #include "src/start/start.h"
 #include "src/manager/dataManager.h"
+#include "src/manager/manager.h"
 
 namespace qingliao
 {
@@ -15,11 +16,8 @@ namespace qingliao
 
     class Factory
     {
-    protected:
-        Factory();
-
     public:
-        static Factory& getGlobalFactory();
+        Factory();
         ~Factory();
 
         // 禁止复制和移动
@@ -29,10 +27,11 @@ namespace qingliao
         Factory& operator=(const Factory&) = delete;
         Factory& operator=(Factory&&) = delete;
 
-        BaseNetwork& getNetwork() const;
-        BaseMainWindow& getMainWindow() const;
-        DataManager& getDataManager() const;
+        std::shared_ptr<BaseNetwork> getNetwork() const;
+        std::shared_ptr<DataManager> getDataManager() const;
+        std::shared_ptr<Manager> getManager() const;
 
+        BaseMainWindow* createNewMainWindow(QWidget* parent = nullptr);
         Login* createNewLoginWidget(QWidget* parent = nullptr);
         Start* createNewStartWidget(QWidget* parent = nullptr);
 

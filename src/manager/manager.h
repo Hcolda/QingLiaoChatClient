@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "manager.h"
+#include "src/network/network.h"
 #include "src/mainWindow/baseMainWindow.h"
 
 namespace qingliao
@@ -13,11 +13,8 @@ namespace qingliao
     
     class Manager
     {
-    protected:
-        Manager();
-
     public:
-        static Manager& getGlobalManager();
+        Manager(std::weak_ptr<qingliao::BaseNetwork>);
         ~Manager();
 
         bool addMainWindow(const std::string&, qingliao::BaseMainWindow*);

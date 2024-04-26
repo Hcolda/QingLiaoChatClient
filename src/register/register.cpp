@@ -16,6 +16,8 @@
 #include "src/factory/factory.h"
 #include "src/manager/dataManager.h"
 
+extern qingliao::Factory clientFactory;
+
 static void addSetVisableButton(QLineEdit* parent)
 {
     QPushButton* btn = new QPushButton;
@@ -127,7 +129,7 @@ Register::Register(QWidget* parent) :
             return;
         }
 
-        if (long long user_id = 0; qingliao::Factory::getGlobalFactory().getDataManager().signUp(
+        if (long long user_id = 0; clientFactory.getDataManager()->signUp(
             ui->email_lineEdit->text().toStdString(), ui->password_lineEdit->text().toStdString(), user_id))
         {
             BaseMessageBox box(QMessageBox::Icon::Information,
@@ -151,14 +153,14 @@ Register::Register(QWidget* parent) :
         ui->frame->setGraphicsEffect(shadow);
     }
 
-    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
-    manager.addMainWindow("Register", this);
+    auto manager = clientFactory.getManager();
+    manager->addMainWindow("Register", this);
 }
 
 Register::~Register()
 {
-    qingliao::Manager& manager = qingliao::Manager::getGlobalManager();
-    manager.removeMainWindow("Register");
+    auto manager = clientFactory.getManager();
+    manager->removeMainWindow("Register");
     delete ui;
 }
 

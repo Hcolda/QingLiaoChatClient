@@ -7,41 +7,41 @@
 #include "src/factory/factory.h"
 #include "src/mainWindow/baseMainWindow.h"
 
+extern qingliao::Factory clientFactory;
+
 namespace qingliao
 {
     struct ManagerImpl
     {
-        BaseNetwork& network = Factory::getGlobalFactory().getNetwork();
-
+        std::weak_ptr<qingliao::BaseNetwork> network;
         std::unordered_map<std::string,
             qingliao::BaseMainWindow*>   mainWindow_map;
         std::shared_mutex           mainWindow_map_mutex;
     };
 
-    Manager::Manager() :
+    Manager::Manager(std::weak_ptr<qingliao::BaseNetwork> network) :
         m_manager_impl(std::make_shared<ManagerImpl>())
     {
-        m_manager_impl->network.add_connected_callback("ManagerConnected",
-            std::bind(&Manager::connected_callback, this));
-        m_manager_impl->network.add_disconnected_callback("ManagerDisconnected",
-            std::bind(&Manager::disconnected_callback, this));
-        m_manager_impl->network.add_received_stdstring_callback("ManagerReceivedMessage",
-            std::bind(&Manager::received_message, this, std::placeholders::_1));
-        m_manager_impl->network.add_connected_error_callback("ManagerConnectedError",
-            std::bind(&Manager::connected_error_callback, this, std::placeholders::_1));
-    }
+        m_manager_impl->network = std::move(network);
 
-    Manager& Manager::getGlobalManager()
-    {
-        static Manager local_manager;
-        return local_manager;
+        auto local_network = m_manager_impl->network.lock();
+
+        local_network->add_connected_callback("ManagerConnected",
+            std::bind(&Manager::connected_callback, this));
+        local_network->add_disconnected_callback("ManagerDisconnected",
+            std::bind(&Manager::disconnected_callback, this));
+        local_network->add_received_stdstring_callback("ManagerReceivedMessage",
+            std::bind(&Manager::received_message, this, std::placeholders::_1));
+        local_network->add_connected_error_callback("ManagerConnectedError",
+            std::bind(&Manager::connected_error_callback, this, std::placeholders::_1));
     }
 
     Manager::~Manager()
     {
-        m_manager_impl->network.remove_connected_callback("ManagerConnected");
-        m_manager_impl->network.remove_disconnected_callback("ManagerDisconnected");
-        m_manager_impl->network.remove_received_stdstring_callback("ManagerReceivedMessage");
+        auto network = m_manager_impl->network.lock();
+        network->remove_connected_callback("ManagerConnected");
+        network->remove_disconnected_callback("ManagerDisconnected");
+        network->remove_received_stdstring_callback("ManagerReceivedMessage");
     }
 
     bool Manager::removeMainWindow(const std::string& name)
