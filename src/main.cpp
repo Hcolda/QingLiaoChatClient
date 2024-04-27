@@ -6,6 +6,8 @@
 #include <QTranslator>
 #include <QSharedMemory>
 
+#include <memory>
+
 // 全局变量
 qingliao::Factory clientFactory;
 
@@ -29,7 +31,16 @@ int main(int argc, char *argv[])
         return 0;
     }*/
 
-    MainWindow mainWindow;
-    mainWindow.run();
+    std::shared_ptr<qingliao::BaseMainWindow>
+        mainWindow(clientFactory.createNewMainWindow());
+    try
+    {
+        mainWindow->run();
+    }
+    catch (...)
+    {
+        return 0;
+    }
+
     return a.exec();
 }

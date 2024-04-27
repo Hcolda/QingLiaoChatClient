@@ -91,26 +91,135 @@ Register::Register(QWidget* parent) :
     // addSetVisableButton(ui->password_lineEdit);
     // addSetVisableButton(ui->password_lineEdit_2);
 
+    ui->password_prograssBar->setVisible(false);
+    ui->email_match_label->setVisible(false);
+    ui->password_match_label->setVisible(false);
+
+    // 检测邮箱格式
+    QObject::connect(ui->email_lineEdit, &QLineEdit::textChanged, [=]() {
+        auto text = ui->email_lineEdit->text().toStdString();
+        if (text.empty() || qingliao::RegexMatch::emailMatch(text))
+        {
+            ui->email_match_label->setVisible(false);
+            return;
+        }
+        ui->email_match_label->setVisible(true);
+        });
+
+    // 检测密码强弱
+    QObject::connect(ui->password_lineEdit, &QLineEdit::textChanged, [=]() {
+        static std::regex
+            medium_password_regex("(?!^\\d+$)(?!^[a-zA-Z]+$).*$"),
+            strong_password_regex("(?=^.{10,}$)((?=.*\\d)|(?=.*\\W+))(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$");
+        auto text = ui->password_lineEdit->text().toStdString();
+
+        if (text.empty())
+        {
+            ui->password_prograssBar->setVisible(false);
+            return;
+        }
+
+        // 检测强弱
+        if (text.size() <= 6)
+        {
+            ui->password_prograssBar->setStyleSheet(R"(
+QProgressBar{
+	color: #FF1744;
+} 
+
+QProgressBar::chunk {
+	background: #FF1744;
+	margin-top: 8%;
+	margin-bottom: 8%;
+	margin-right: 10%;
+})");
+            ui->password_prograssBar->setFormat("弱");
+            ui->password_prograssBar->setValue(33);
+            ui->password_prograssBar->setVisible(true);
+            return;
+        }
+
+        if (std::regex_match(text, strong_password_regex))
+        {
+            ui->password_prograssBar->setStyleSheet(R"(
+QProgressBar{
+	color: #00BFA5;
+} 
+
+QProgressBar::chunk {
+	background: #00BFA5;
+	margin-top: 8%;
+	margin-bottom: 8%;
+	margin-right: 50%;
+})");
+            ui->password_prograssBar->setFormat("强");
+            ui->password_prograssBar->setValue(100);
+        }
+        else if (std::regex_match(text, medium_password_regex))
+        {
+            ui->password_prograssBar->setStyleSheet(R"(
+QProgressBar{
+	color: #FFB300;
+} 
+
+QProgressBar::chunk {
+	background: #FFB300;
+	margin-top: 8%;
+	margin-bottom: 8%;
+	margin-right: 30%;
+})");
+            ui->password_prograssBar->setFormat("中");
+            ui->password_prograssBar->setValue(66);
+        }
+        else
+        {
+            ui->password_prograssBar->setStyleSheet(R"(
+QProgressBar{
+	color: #FF1744;
+} 
+
+QProgressBar::chunk {
+	background: #FF1744;
+	margin-top: 8%;
+	margin-bottom: 8%;
+	margin-right: 10%;
+})");
+            ui->password_prograssBar->setFormat("弱");
+            ui->password_prograssBar->setValue(33);
+        }
+
+        ui->password_prograssBar->setVisible(true);
+        });
+
+    // 检测密码是否一致
+    QObject::connect(ui->password_lineEdit_2, &QLineEdit::textChanged, [=]() {
+        auto text = ui->password_lineEdit->text().toStdString();
+        auto test_text = ui->password_lineEdit_2->text().toStdString();
+        if (text.empty() || text == test_text)
+        {
+            ui->password_match_label->setVisible(false);
+        }
+        else
+        {
+            ui->password_match_label->setVisible(true);
+        }
+        });
+
     QObject::connect(ui->close_button, &QPushButton::clicked, this, &Register::close);
     QObject::connect(ui->register_button, &QPushButton::clicked, this, [=]() {
-        //qingliao::Factory::getGlobalFactory().getDataManager().signUp()
-
-        if (!(ui->email_lineEdit->hasAcceptableInput() &&
-            ui->email_lineEdit->text().size()))
+        if (!ui->email_lineEdit->text().size())
         {
             WarningBox box("警告", "邮箱为空", QMessageBox::StandardButton::Ok, this);
             box.exec();
             return;
         }
-        if (!(ui->password_lineEdit->hasAcceptableInput() &&
-            ui->password_lineEdit->text().size()))
+        if (!ui->password_lineEdit->text().size())
         {
             WarningBox box("警告", "密码为空", QMessageBox::StandardButton::Ok, this);
             box.exec();
             return;
         }
-        if (!(ui->password_lineEdit_2->hasAcceptableInput() &&
-            ui->password_lineEdit_2->text().size()))
+        if (!ui->password_lineEdit_2->text().size())
         {
             WarningBox box("警告", "确认密码为空", QMessageBox::StandardButton::Ok, this);
             box.exec();
@@ -129,15 +238,21 @@ Register::Register(QWidget* parent) :
             return;
         }
 
-        if (long long user_id = 0; clientFactory.getDataManager()->signUp(
-            ui->email_lineEdit->text().toStdString(), ui->password_lineEdit->text().toStdString(), user_id))
         {
-            BaseMessageBox box(QMessageBox::Icon::Information,
-                "信息", QString::fromStdString(std::format("注册成功！\n请记住你的唯一UID：{}", user_id)),
-                QMessageBox::Ok, this);
-            box.exec();
-            accept();
-            return;
+            long long user_id = 0;
+            auto dataManager = clientFactory.getDataManager();
+            if (dataManager->signUp(
+                ui->email_lineEdit->text().toStdString(),
+                ui->password_lineEdit->text().toStdString(),
+                user_id))
+            {
+                BaseMessageBox box(QMessageBox::Icon::Information,
+                    "信息", QString::fromStdString(std::format("注册成功！\n请记住你的唯一UID：{}", user_id)),
+                    QMessageBox::Ok, this);
+                box.exec();
+                accept();
+                return;
+            }
         }
         });
 

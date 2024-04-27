@@ -23,6 +23,8 @@ namespace qingliao
         BaseMainWindow() = default;
         virtual ~BaseMainWindow() = default;
 
+        virtual void run() {}
+
         virtual bool addPrivateRoom(long long user_id) { return false; }
         virtual bool romovePrivateRoom(long long user_id) { return false; }
         virtual bool addGroupRoom(long long room_id) { return false; }

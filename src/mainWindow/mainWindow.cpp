@@ -10,6 +10,7 @@
 
 #include <cstdlib>
 #include <regex>
+#include <stdexcept>
 
 #include "src/factory/factory.h"
 #include "src/manager/manager.h"
@@ -71,7 +72,7 @@ void MainWindow::run()
     {
         auto network = clientFactory.getNetwork();
         network->stop();
-        return;
+        throw std::logic_error("Application closed");
     }
 
     Login login;
@@ -79,7 +80,7 @@ void MainWindow::run()
     {
         auto network = clientFactory.getNetwork();
         network->stop();
-        return;
+        throw std::logic_error("Application closed");
     }
 
     auto manager = clientFactory.getManager();
