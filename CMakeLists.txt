@@ -69,10 +69,19 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(QingLiaoClient WIN32
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
+    if(CMAKE_BUILD_TYPE)
+        if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            qt_add_executable(QingLiaoClient
+                MANUAL_FINALIZATION
+                ${PROJECT_SOURCES}
+            )
+        else()
+            qt_add_executable(QingLiaoClient WIN32
+                MANUAL_FINALIZATION
+                ${PROJECT_SOURCES}
+            )
+        endif()
+    endif()
     target_include_directories(QingLiaoClient PUBLIC include/ src/parser/)
     target_link_libraries(QingLiaoClient PRIVATE
         OpenSSL::SSL OpenSSL::Crypto asio::asio kcp::kcp)
@@ -90,9 +99,17 @@ else()
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
-        add_executable(QingLiaoClient WIN32
-            ${PROJECT_SOURCES}
-        )
+        if(CMAKE_BUILD_TYPE)
+            if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+                add_executable(QingLiaoClient
+                    ${PROJECT_SOURCES}
+                )
+            else()
+                add_executable(QingLiaoClient WIN32
+                    ${PROJECT_SOURCES}
+                )
+            endif()
+        endif()
         target_include_directories(QingLiaoClient PUBLIC include/ src/parser/)
         target_link_libraries(QingLiaoClient PRIVATE
             OpenSSL::SSL OpenSSL::Crypto asio::asio kcp::kcp)

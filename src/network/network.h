@@ -105,14 +105,15 @@ namespace qingliao
     protected:
         void call_connected();
         void call_disconnect();
-        void call_connected_error();
+        void call_connected_error(const std::error_code& = std::make_error_code(std::errc::not_connected));
         void call_received_stdstring(std::string);
 
         void run();
 
-        void start_connect(asio::ip::tcp::resolver::results_type::iterator endpoint_iter);
-        void handle_connect(const std::error_code& error,
-            asio::ip::tcp::resolver::results_type::iterator endpoint_iter);
+        void start_connect();
+        void handle_connect(const std::error_code& error);
+        void async_handshake();
+        void handle_handshake(const std::error_code&);
         void async_read();
         void handle_read(const std::error_code& error, std::size_t n);
         void heart_beat_write();
