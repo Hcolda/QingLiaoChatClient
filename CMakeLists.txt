@@ -53,6 +53,9 @@ set(PROJECT_SOURCES
 
         src/factory/factory.h
         src/factory/factory.cpp
+        src/factory/abstractClass/abstractRoom.hpp
+        src/factory/token.h
+        src/factory/token.cpp
 
         src/mainWindow/baseMainWindow.h
         src/mainWindow/baseMainWindow.cpp
