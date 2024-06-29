@@ -134,12 +134,16 @@ namespace qingliao
         if (!BN_copy(m_impl->bignum, b.m_impl->bignum))
             throw std::runtime_error("Copy error");
         m_impl->is_prime = b.m_impl->is_prime;
+
+        return *this;
     }
 
     BigNum& BigNum::operator=(BigNum&& b) noexcept
     {
         BN_free(m_impl->bignum);
         m_impl = std::move(b.m_impl);
+
+        return *this;
     }
 
     BigNum& BigNum::operator++()

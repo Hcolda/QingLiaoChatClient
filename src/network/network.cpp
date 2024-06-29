@@ -14,7 +14,6 @@
 #include <future>
 
 #include <Logger.hpp>
-#include <QuqiCrypto.hpp>
 #include <Json.h>
 
 #include "definition.hpp"
