@@ -13,6 +13,7 @@
 #include <random>
 #include <future>
 
+#include <asio/ssl.hpp>
 #include <Logger.hpp>
 #include <QuqiCrypto.hpp>
 #include <Json.h>
@@ -31,6 +32,10 @@ namespace qingliao
     namespace this_coro = asio::this_coro;
     using namespace std::placeholders;
     using asio::ip::tcp;
+    using namespace asio;
+    using namespace std::chrono;
+
+    using ssl_socket = asio::ssl::stream<tcp::socket>;
 
     std::string socket2ip(const asio::ip::tcp::socket& s)
     {
@@ -109,11 +114,16 @@ namespace qingliao
 
     struct NetworkImpl
     {
-        std::string host = "localhost";
+#ifdef _DEBUG
+        std::string host = "192.168.1.103";
+#else
+        std::string host = "hcolda.qqof.top";
+#endif // DEBUG
         int         port = 55555;
 
         asio::io_context                        io_context;
-        std::shared_ptr<asio::ip::tcp::socket>  socket_ptr;
+        asio::ssl::context                      ssl_context;
+        std::shared_ptr<ssl_socket>             socket_ptr;
         std::atomic<bool>                       is_running;
         std::atomic<bool>                       is_receiving;
         std::atomic<bool>                       has_stopped;
@@ -152,13 +162,51 @@ namespace qingliao
         NetworkImpl() :
             deadline_timer(io_context),
             heartbeat_timer(io_context),
-            socket_ptr(std::make_shared<asio::ip::tcp::socket>(io_context)),
+            ssl_context(asio::ssl::context::tlsv12),
             requestID_mt(std::random_device{}())
         {
             input_buffer.resize(8192);
+
+            // ssl 配置
+            ssl_context.set_default_verify_paths();
+
+            // 设置ssl参数
+            ssl_context.set_options(
+                asio::ssl::context::default_workarounds
+                | asio::ssl::context::no_sslv2
+                | asio::ssl::context::no_sslv3
+                | asio::ssl::context::no_tlsv1
+                | asio::ssl::context::no_tlsv1_1
+                | asio::ssl::context::single_dh_use
+            );
+
+            // 设置是否验证cert
+#ifdef _DEBUG
+            ssl_context.set_verify_mode(asio::ssl::verify_none);
+#else
+            ssl_context.set_verify_mode(asio::ssl::verify_peer);
+#endif // _DEBUG
+
+            ssl_context.set_verify_callback(
+                std::bind(&NetworkImpl::verify_certificate, this, _1, _2));
+            // ssl_context.set_verify_callback(ssl::rfc2818_verification("host.name"));
+
+            socket_ptr = std::make_shared<ssl_socket>(io_context, ssl_context);
+            // SSL_set_tlsext_host_name(socket_ptr->native_handle(), host.c_str());
         }
 
         ~NetworkImpl() = default;
+
+        bool verify_certificate(bool preverified,
+            asio::ssl::verify_context& ctx)
+        {
+            char subject_name[256];
+            X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+            X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
+            std::cout << "Verifying " << subject_name << "\n";
+
+            return preverified;
+        }
     };
 
     Network::Network() :
@@ -212,7 +260,7 @@ namespace qingliao
         {
             std::unique_lock<std::mutex> lock(m_network_impl->mutex);
             std::error_code ignored_error;
-            m_network_impl->socket_ptr->close(ignored_error);
+            m_network_impl->socket_ptr->shutdown(ignored_error);
             m_network_impl->deadline_timer.cancel();
             m_network_impl->heartbeat_timer.cancel();
         }
@@ -236,7 +284,6 @@ namespace qingliao
 
         auto wrapper = std::make_shared<StringWrapper>(data);
 
-        // m_network_impl->socket_ptr->async_send(asio::buffer(data), [](auto, auto){return;});
         asio::async_write(*(m_network_impl->socket_ptr),
             asio::buffer(wrapper->data), std::bind(&Network::handle_write, this, _1, _2, wrapper));
     }
@@ -411,15 +458,14 @@ namespace qingliao
         }
     }
 
-    void Network::call_connected_error()
+    void Network::call_connected_error(const std::error_code& error)
     {
         std::shared_lock<std::shared_mutex> lock(
             m_network_impl->connectedErrorCallbackFunction_map_mutex);
 
-        auto error_code = std::make_error_code(std::errc::not_connected);
         for (const auto& [_, func] : m_network_impl->connectedErrorCallbackFunction_map)
         {
-            func(error_code);
+            func(error);
         }
     }
 
@@ -476,53 +522,71 @@ namespace qingliao
             try
             {
                 lock.unlock();
-                start_connect(m_network_impl->endpoints.begin());
+                start_connect();
                 m_network_impl->io_context.run();
             }
             catch (...) {}
         }
     }
 
-    void Network::start_connect(asio::ip::tcp::resolver::results_type::iterator endpoint_iter)
+    void Network::start_connect()
     {
         std::unique_lock<std::mutex> lock(m_network_impl->mutex);
         if (!m_network_impl->is_running)
             return;
 
-        if (endpoint_iter != m_network_impl->endpoints.end())
-        {
-            m_network_impl->deadline_timer.expires_after(std::chrono::seconds(60));
-
-            m_network_impl->socket_ptr->async_connect(endpoint_iter->endpoint(),
-                std::bind(&Network::handle_connect,
-                    this, _1, endpoint_iter));
-        }
-        else
-        {
-            m_network_impl->is_receiving = false;
-            m_network_impl->endpoints = {};
-            call_connected_error();
-        }
+        m_network_impl->deadline_timer.expires_after(std::chrono::seconds(60));
+        asio::async_connect(m_network_impl->socket_ptr->lowest_layer(), m_network_impl->endpoints.begin(), m_network_impl->endpoints.end(), std::bind(&Network::handle_connect,
+            this, _1));
     }
 
-    void Network::handle_connect(const std::error_code& error, asio::ip::tcp::resolver::results_type::iterator endpoint_iter)
+    void Network::handle_connect(const std::error_code& error)
     {
         std::unique_lock<std::mutex> lock(m_network_impl->mutex);
         if (!m_network_impl->is_running)
             return;
 
-        if (!m_network_impl->socket_ptr->is_open())
+        if (!m_network_impl->socket_ptr->lowest_layer().is_open())
         {
             lock.unlock();
-            start_connect(++endpoint_iter);
+            call_connected_error(error);
+            std::this_thread::sleep_for(10s);
+            start_connect();
         }
         else if (error)
         {
-            m_network_impl->socket_ptr->close();
+            std::error_code ec;
+            m_network_impl->socket_ptr->lowest_layer().close(ec);
             lock.unlock();
-            start_connect(++endpoint_iter);
+            call_connected_error(error);
+            std::this_thread::sleep_for(10s);
+            start_connect();
         }
         else
+        {
+            lock.unlock();
+            async_handshake();
+        }
+    }
+
+    void Network::async_handshake()
+    {
+        std::unique_lock<std::mutex> lock(m_network_impl->mutex);
+        if (!m_network_impl->is_running)
+            return;
+
+        m_network_impl->deadline_timer.expires_after(std::chrono::seconds(10));
+        m_network_impl->socket_ptr->async_handshake(asio::ssl::stream_base::client,
+            std::bind(&Network::handle_handshake, this, _1));
+    }
+
+    void Network::handle_handshake(const std::error_code& error)
+    {
+        std::unique_lock<std::mutex> lock(m_network_impl->mutex);
+        if (!m_network_impl->is_running)
+            return;
+
+        if (!error)
         {
             m_network_impl->is_receiving = true;
             lock.unlock();
@@ -530,6 +594,13 @@ namespace qingliao
             async_read();
             heart_beat_write();
             call_connected();
+        }
+        else
+        {
+            std::error_code ec;
+            m_network_impl->socket_ptr->shutdown(ec);
+            std::cout << error.message() << '\n';
+            call_connected_error(error);
         }
     }
 
@@ -576,7 +647,7 @@ namespace qingliao
         {
             m_network_impl->is_receiving = false;
             std::error_code ignored_error;
-            m_network_impl->socket_ptr->close(ignored_error);
+            m_network_impl->socket_ptr->shutdown(ignored_error);
             m_network_impl->deadline_timer.cancel();
             m_network_impl->heartbeat_timer.cancel();
         }
@@ -612,7 +683,7 @@ namespace qingliao
         {
             m_network_impl->is_receiving = false;
             std::error_code ignored_error;
-            m_network_impl->socket_ptr->close(ignored_error);
+            m_network_impl->socket_ptr->shutdown(ignored_error);
             m_network_impl->deadline_timer.cancel();
             m_network_impl->heartbeat_timer.cancel();
             call_disconnect();
@@ -627,14 +698,15 @@ namespace qingliao
 
         if (m_network_impl->deadline_timer.expiry() <= asio::steady_timer::clock_type::now())
         {
-            m_network_impl->socket_ptr->close();
+            std::error_code ec;
+            m_network_impl->socket_ptr->shutdown(ec);
             m_network_impl->is_receiving = false;
 
             m_network_impl->deadline_timer.expires_at(asio::steady_timer::time_point::max());
             call_disconnect();
 
             lock.unlock();
-            start_connect(m_network_impl->endpoints.begin());
+            start_connect();
         }
 
         m_network_impl->deadline_timer.async_wait(std::bind(&Network::check_deadline, this));
@@ -652,7 +724,7 @@ namespace qingliao
         {
             m_network_impl->is_receiving = false;
             std::error_code ignored_error;
-            m_network_impl->socket_ptr->close(ignored_error);
+            m_network_impl->socket_ptr->shutdown(ignored_error);
             m_network_impl->deadline_timer.cancel();
             m_network_impl->heartbeat_timer.cancel();
             call_disconnect();
