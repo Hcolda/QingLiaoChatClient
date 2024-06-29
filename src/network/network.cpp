@@ -114,7 +114,7 @@ namespace qingliao
 
     struct NetworkImpl
     {
-        std::string host = "localhost";
+        std::string host = "192.168.1.103";
         int         port = 55555;
 
         asio::io_context                        io_context;
@@ -166,6 +166,16 @@ namespace qingliao
             // ssl 配置
             ssl_context.set_default_verify_paths();
 
+            // 设置ssl参数
+            ssl_context.set_options(
+                asio::ssl::context::default_workarounds
+                | asio::ssl::context::no_sslv2
+                | asio::ssl::context::no_sslv3
+                | asio::ssl::context::no_tlsv1
+                | asio::ssl::context::no_tlsv1_1
+                | asio::ssl::context::single_dh_use
+            );
+
             // 设置是否验证cert
 #ifdef _DEBUG
             ssl_context.set_verify_mode(asio::ssl::verify_none);
@@ -173,9 +183,9 @@ namespace qingliao
             ssl_context.set_verify_mode(asio::ssl::verify_peer);
 #endif // _DEBUG
 
-            /*ssl_context.set_verify_callback(
-                std::bind(&NetworkImpl::verify_certificate, this, _1, _2));*/
-            ssl_context.set_verify_callback(ssl::rfc2818_verification("host.name"));
+            ssl_context.set_verify_callback(
+                std::bind(&NetworkImpl::verify_certificate, this, _1, _2));
+            // ssl_context.set_verify_callback(ssl::rfc2818_verification("host.name"));
 
             /*auto rc = SSL_CTX_set_cipher_list(
                 ssl_context.native_handle(),
@@ -589,7 +599,7 @@ namespace qingliao
         {
             std::error_code ec;
             m_network_impl->socket_ptr->shutdown(ec);
-            std::cout << ec.message() << '\n';
+            std::cout << error.message() << '\n';
             call_connected_error(error);
         }
     }
