@@ -222,6 +222,14 @@ namespace qingliao
         if (m_network_impl->has_stopped) return;
         m_network_impl->has_stopped = false;
         m_network_impl->is_running = false;
+        if (m_network_impl->is_receiving)
+        {
+            std::error_code ignored_error;
+            m_network_impl->socket_ptr->shutdown(ignored_error);
+            m_network_impl->deadline_timer.cancel();
+            m_network_impl->heartbeat_timer.cancel();
+        }
+            m_network_impl->is_receiving = false;
         m_network_impl->io_context.stop();
         m_network_impl->condition_variable.notify_all();
         QThread::wait();
@@ -271,6 +279,14 @@ namespace qingliao
         if (m_network_impl->has_stopped) return;
         m_network_impl->has_stopped = false;
         m_network_impl->is_running = false;
+        if (m_network_impl->is_receiving)
+        {
+            std::error_code ignored_error;
+            m_network_impl->socket_ptr->shutdown(ignored_error);
+            m_network_impl->deadline_timer.cancel();
+            m_network_impl->heartbeat_timer.cancel();
+        }
+        m_network_impl->is_receiving = false;
         m_network_impl->io_context.stop();
         m_network_impl->condition_variable.notify_all();
         QThread::wait();
